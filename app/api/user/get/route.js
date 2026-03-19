@@ -53,6 +53,7 @@ export async function POST(request) {
       transactions: data?.transactions || [],
       slotGroups: data?.slotGroups || [],
       customSlots: data?.customSlots || [],
+      favoriteSlots: data?.favoriteSlots || [],
       currency: data?.currency || "₽",
     },
   });

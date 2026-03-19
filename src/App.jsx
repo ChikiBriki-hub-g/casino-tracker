@@ -16,6 +16,7 @@ import {
   Dices,
   Search,
   X,
+  Star,
   ChevronDown,
   Layers,
 } from "lucide-react";
@@ -88,6 +89,11 @@ const mergeUniqueSlots = (slots) => {
   });
 
   return uniqueSlots.sort((a, b) => a.localeCompare(b));
+};
+
+const includesSlotQuery = (slot, query) => {
+  if (!query) return true;
+  return slot.toLowerCase().includes(query.toLowerCase());
 };
 
 export default function App() {
@@ -199,12 +205,18 @@ export default function App() {
   const [isSlotSearchOpen, setIsSlotSearchOpen] = useState(false);
   const [slotSearchQuery, setSlotSearchQuery] = useState("");
   const [customSlots, setCustomSlots] = useState([]);
+  const [favoriteSlots, setFavoriteSlots] = useState([]);
 
   const allSlots = useMemo(
-    () => mergeUniqueSlots([...POPULAR_SLOTS, ...customSlots]),
-    [customSlots],
+    () =>
+      mergeUniqueSlots([...POPULAR_SLOTS, ...customSlots, ...favoriteSlots]),
+    [customSlots, favoriteSlots],
   );
   const normalizedSlotSearchQuery = normalizeSlotName(slotSearchQuery);
+  const favoriteSlotSet = useMemo(
+    () => new Set(favoriteSlots.map((slot) => slot.toLowerCase())),
+    [favoriteSlots],
+  );
   const hasExactSlotMatch = useMemo(
     () =>
       allSlots.some(
@@ -215,12 +227,42 @@ export default function App() {
   );
 
   // Фильтрация слотов по поиску
-  const filteredSlots = useMemo(() => {
-    if (!normalizedSlotSearchQuery) return allSlots;
-    return allSlots.filter((s) =>
-      s.toLowerCase().includes(normalizedSlotSearchQuery.toLowerCase()),
+  const slotSections = useMemo(() => {
+    const favorites = favoriteSlots.filter((slot) =>
+      includesSlotQuery(slot, normalizedSlotSearchQuery),
     );
-  }, [allSlots, normalizedSlotSearchQuery]);
+    const custom = customSlots.filter(
+      (slot) =>
+        !favoriteSlotSet.has(slot.toLowerCase()) &&
+        includesSlotQuery(slot, normalizedSlotSearchQuery),
+    );
+    const popular = POPULAR_SLOTS.filter(
+      (slot) =>
+        !favoriteSlotSet.has(slot.toLowerCase()) &&
+        includesSlotQuery(slot, normalizedSlotSearchQuery),
+    );
+
+    return [
+      {
+        id: "favorites",
+        title: "Избранные",
+        emptyText: "Добавляйте слоты в избранное по звездочке.",
+        items: favorites,
+      },
+      {
+        id: "custom",
+        title: "Ваши слоты",
+        emptyText: "Здесь появятся слоты, которые вы добавили сами.",
+        items: custom,
+      },
+      {
+        id: "popular",
+        title: "Популярные",
+        emptyText: "Популярные слоты не найдены по вашему запросу.",
+        items: popular,
+      },
+    ];
+  }, [customSlots, favoriteSlotSet, favoriteSlots, normalizedSlotSearchQuery]);
 
   // --- ЗАГРУЗКА И СОХРАНЕНИЕ В FIREBASE ---
   useEffect(() => {
@@ -247,6 +289,7 @@ export default function App() {
           setActiveGroupId(payload.slotGroups[0].id);
         }
         if (payload.customSlots) setCustomSlots(payload.customSlots);
+        if (payload.favoriteSlots) setFavoriteSlots(payload.favoriteSlots);
         if (payload.currency) setCurrency(payload.currency);
       } catch (error) {
         console.error("Ошибка загрузки данных:", error);
@@ -278,7 +321,13 @@ export default function App() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             initData,
-            data: { transactions, slotGroups, customSlots, currency },
+            data: {
+              transactions,
+              slotGroups,
+              customSlots,
+              favoriteSlots,
+              currency,
+            },
           }),
         });
         if (!response.ok) throw new Error("save_failed");
@@ -296,6 +345,7 @@ export default function App() {
     transactions,
     slotGroups,
     customSlots,
+    favoriteSlots,
     currency,
     isDataLoaded,
     userId,
@@ -393,6 +443,27 @@ export default function App() {
     closeSlotSearch();
   };
 
+  const handleToggleFavoriteSlot = (slot) => {
+    const normalized = normalizeSlotName(slot);
+    if (!normalized) return;
+
+    setFavoriteSlots((prev) => {
+      const exists = prev.some(
+        (favoriteSlot) =>
+          favoriteSlot.toLowerCase() === normalized.toLowerCase(),
+      );
+
+      if (exists) {
+        return prev.filter(
+          (favoriteSlot) =>
+            favoriteSlot.toLowerCase() !== normalized.toLowerCase(),
+        );
+      }
+
+      return mergeUniqueSlots([...prev, normalized]);
+    });
+  };
+
   const handleAddCustomSlot = () => {
     if (!normalizedSlotSearchQuery) return;
 
@@ -408,6 +479,74 @@ export default function App() {
     });
 
     handleSelectSlot(normalizedSlotSearchQuery);
+  };
+
+  const renderSlotOption = (slot) => {
+    const isFavorite = favoriteSlotSet.has(slot.toLowerCase());
+
+    return (
+      <div
+        key={slot}
+        className="flex items-center gap-2 rounded-xl hover:bg-slate-800 transition-colors"
+      >
+        <button
+          type="button"
+          onClick={() => handleSelectSlot(slot)}
+          className="flex-1 text-left px-4 py-3 text-slate-200"
+        >
+          {slot}
+        </button>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            handleToggleFavoriteSlot(slot);
+          }}
+          className="mr-2 rounded-lg p-2 text-slate-500 hover:text-amber-400 hover:bg-slate-700 transition-colors"
+          aria-label={
+            isFavorite
+              ? `Убрать ${slot} из избранного`
+              : `Добавить ${slot} в избранное`
+          }
+          title={isFavorite ? "Убрать из избранного" : "В избранное"}
+        >
+          <Star
+            size={18}
+            className={isFavorite ? "fill-amber-400 text-amber-400" : ""}
+          />
+        </button>
+      </div>
+    );
+  };
+
+  const renderSlotSection = (section) => {
+    const showEmptyState =
+      !normalizedSlotSearchQuery &&
+      section.id !== "popular" &&
+      section.items.length === 0;
+
+    if (section.items.length === 0 && !showEmptyState) {
+      return null;
+    }
+
+    return (
+      <section key={section.id} className="space-y-2">
+        <div className="px-2 pt-2">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
+            {section.title}
+          </p>
+        </div>
+        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/40">
+          {section.items.length > 0 ? (
+            section.items.map(renderSlotOption)
+          ) : (
+            <div className="px-4 py-4 text-sm text-slate-500">
+              {section.emptyText}
+            </div>
+          )}
+        </div>
+      </section>
+    );
   };
 
   const handleAddSlotSession = (e) => {
@@ -1203,24 +1342,29 @@ export default function App() {
             </div>
 
             {/* Список слотов */}
-            <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
-              {filteredSlots.map((slot) => (
-                <button
-                  key={slot}
-                  onClick={() => handleSelectSlot(slot)}
-                  className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-200 transition-colors"
-                >
-                  {slot}
-                </button>
-              ))}
+            <div className="flex-1 overflow-y-auto p-2 scrollbar-hide space-y-4">
               {normalizedSlotSearchQuery && !hasExactSlotMatch && (
                 <button
+                  type="button"
                   onClick={handleAddCustomSlot}
-                  className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800 text-indigo-400 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-4 py-3 rounded-2xl border border-indigo-500/30 bg-indigo-950/20 hover:bg-indigo-950/30 text-indigo-300 transition-colors flex items-center gap-2"
                 >
                   <PlusCircle size={18} />
-                  Добавить в мои слоты "{normalizedSlotSearchQuery}"
+                  Добавить в ваши слоты "{normalizedSlotSearchQuery}"
                 </button>
+              )}
+              {slotSections.some(
+                (section) =>
+                  section.items.length > 0 ||
+                  (!normalizedSlotSearchQuery &&
+                    section.id !== "popular" &&
+                    section.items.length === 0),
+              ) ? (
+                slotSections.map(renderSlotSection)
+              ) : (
+                <div className="px-4 py-10 text-center text-sm text-slate-500">
+                  По вашему запросу ничего не найдено.
+                </div>
               )}
             </div>
           </div>

@@ -66,10 +66,17 @@ const isValidPayload = (payload) => {
   ) {
     return false;
   }
+  if (
+    payload.favoriteSlots !== undefined &&
+    !Array.isArray(payload.favoriteSlots)
+  ) {
+    return false;
+  }
   if (typeof payload.currency !== "string") return false;
   if (payload.transactions.length > MAX_TRANSACTIONS) return false;
   if (payload.slotGroups.length > MAX_SLOT_GROUPS) return false;
   if ((payload.customSlots || []).length > MAX_CUSTOM_SLOTS) return false;
+  if ((payload.favoriteSlots || []).length > MAX_CUSTOM_SLOTS) return false;
 
   for (const group of payload.slotGroups) {
     if (!group || typeof group !== "object") return false;
@@ -78,6 +85,10 @@ const isValidPayload = (payload) => {
   }
 
   for (const slot of payload.customSlots || []) {
+    if (!isValidSlotName(slot)) return false;
+  }
+
+  for (const slot of payload.favoriteSlots || []) {
     if (!isValidSlotName(slot)) return false;
   }
 
@@ -114,6 +125,7 @@ export async function POST(request) {
       transactions: data.transactions,
       slotGroups: data.slotGroups,
       customSlots: sanitizeCustomSlots(data.customSlots || []),
+      favoriteSlots: sanitizeCustomSlots(data.favoriteSlots || []),
       currency: data.currency,
     },
     { merge: true },
