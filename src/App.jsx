@@ -195,8 +195,8 @@ export default function App() {
 
   const [slotName, setSlotName] = useState("");
   const [slotBet, setSlotBet] = useState("");
-  const [slotSpins, setSlotSpins] = useState("100");
-  const [slotBonuses, setSlotBonuses] = useState("0");
+  const [slotSpins, setSlotSpins] = useState("");
+  const [slotBonuses, setSlotBonuses] = useState("");
   const [slotBonusWins, setSlotBonusWins] = useState([]);
   const [slotBalance, setSlotBalance] = useState("");
   const [copiedGroupId, setCopiedGroupId] = useState(null);
@@ -576,9 +576,11 @@ export default function App() {
 
     // Сброс полей
     setSlotName("");
-    setSlotBonuses("0");
+    setSlotBet("");
+    setSlotBonuses("");
     setSlotBonusWins([]);
-    setSlotSpins("100");
+    setSlotSpins("");
+    setSlotBalance("");
   };
 
   const handleDeleteSlotSession = (groupId, sessionId) => {
@@ -885,7 +887,7 @@ export default function App() {
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 flex items-center justify-between cursor-pointer hover:border-indigo-500 transition-colors"
             >
               <span className={slotName ? "text-slate-100" : "text-slate-500"}>
-                {slotName || "Название слота (напр. Sweet Bonanza)"}
+                {slotName || "Выберите слот"}
               </span>
               <Search size={18} className="text-slate-500" />
             </div>
@@ -900,7 +902,7 @@ export default function App() {
                 setSlotBet(formatInputWithCommas(e.target.value))
               }
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              placeholder="Ставка (напр. 300)"
+              placeholder="Размер ставки"
             />
             <input
               type="number"
@@ -908,18 +910,17 @@ export default function App() {
               value={slotSpins}
               onChange={(e) => setSlotSpins(e.target.value)}
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              placeholder="Спинов"
+              placeholder="Количество спинов"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3 items-start">
             <input
               type="number"
-              required
               value={slotBonuses}
               onChange={handleBonusesChange}
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              placeholder="Бонусок (шт)"
+              placeholder="Количество бонусных игр, если были"
             />
 
             {/* Динамические поля выигрышей */}
@@ -936,8 +937,8 @@ export default function App() {
                     className="w-full bg-slate-950 border border-indigo-900/50 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 bg-indigo-950/20"
                     placeholder={
                       slotBonusWins.length > 1
-                        ? `Выигрыш ${index + 1} (напр. 10к)`
-                        : `Выигрыш (напр. 66к)`
+                        ? `Сумма выигрыша по бонусной игре ${index + 1}`
+                        : "Сумма выигрыша по бонусной игре"
                     }
                   />
                 ))}
@@ -954,7 +955,7 @@ export default function App() {
                 setSlotBalance(formatInputWithCommas(e.target.value))
               }
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-              placeholder="Итоговый баланс (напр. 7,980к)"
+              placeholder="Итоговый баланс по сессии"
             />
           </div>
 
@@ -1330,7 +1331,7 @@ export default function App() {
                 autoFocus
                 value={slotSearchQuery}
                 onChange={(e) => setSlotSearchQuery(e.target.value)}
-                placeholder="Поиск слота..."
+                placeholder="Начните вводить название слота"
                 className="w-full bg-transparent border-none text-slate-100 placeholder-slate-500 focus:outline-none text-lg"
               />
               <button
