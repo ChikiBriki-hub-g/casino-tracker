@@ -133,7 +133,7 @@ export default function App() {
                     userId: data.user.id.toString(),
                     error: "",
                 });
-            } catch (e) {
+            } catch (error) {
                 setError(
                     "Не удалось проверить авторизацию Telegram. Попробуйте позже.",
                 );
@@ -216,8 +216,8 @@ export default function App() {
                     setActiveGroupId(payload.slotGroups[0].id);
                 }
                 if (payload.currency) setCurrency(payload.currency);
-            } catch (e) {
-                console.error("Ошибка загрузки данных:", e);
+            } catch (error) {
+                console.error("Ошибка загрузки данных:", error);
             } finally {
                 if (isMounted) setIsDataLoaded(true);
             }
@@ -253,8 +253,8 @@ export default function App() {
                 const data = await response.json();
                 if (!data?.ok) throw new Error("save_invalid");
                 setSaveStatus("saved");
-            } catch (e) {
-                console.error("Ошибка сохранения данных:", e);
+            } catch (error) {
+                console.error("Ошибка сохранения данных:", error);
                 setSaveStatus("error");
             }
         };
