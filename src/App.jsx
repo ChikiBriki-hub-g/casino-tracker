@@ -22,6 +22,10 @@ import {
 
 import { POPULAR_SLOTS } from "./constants/slots";
 
+// Ключи из вашего скриншота
+
+// База популярных слотов
+
 // Форматирование ввода: добавляет запятые (10000 -> 10,000) при вводе
 const formatInputWithCommas = (str) => {
   if (!str) return "";
@@ -66,6 +70,24 @@ const calculateX = (winStr, betStr) => {
   if (isNaN(win) || isNaN(bet) || bet <= 0) return null;
   const x = win / bet;
   return Number.isInteger(x) ? x.toString() : x.toFixed(2).replace(/\.00$/, "");
+};
+
+const normalizeSlotName = (value) => value.trim().replace(/\s+/g, " ");
+
+const mergeUniqueSlots = (slots) => {
+  const uniqueSlots = [];
+  const seen = new Set();
+
+  slots.forEach((slot) => {
+    const normalized = normalizeSlotName(slot);
+    const key = normalized.toLowerCase();
+    if (!normalized || seen.has(key)) return;
+
+    seen.add(key);
+    uniqueSlots.push(normalized);
+  });
+
+  return uniqueSlots.sort((a, b) => a.localeCompare(b));
 };
 
 export default function App() {
@@ -173,25 +195,34 @@ export default function App() {
   const [slotBalance, setSlotBalance] = useState("");
   const [copiedGroupId, setCopiedGroupId] = useState(null);
 
-  // --- СОСТОЯНИЕ ПОИСКА СЛОТОВ И КАСТОМНЫЕ СЛОТЫ ---
+  // --- СОСТОЯНИЕ ПОИСКА СЛОТОВ ---
   const [isSlotSearchOpen, setIsSlotSearchOpen] = useState(false);
   const [slotSearchQuery, setSlotSearchQuery] = useState("");
-  const [customSlots, setCustomSlots] = useState([]); // Личные слоты пользователя
+  const [customSlots, setCustomSlots] = useState([]);
 
-  // Объединяем базовые слоты и личные слоты пользователя, убирая дубликаты
-  const allSlots = useMemo(() => {
-    return Array.from(new Set([...POPULAR_SLOTS, ...customSlots]));
-  }, [customSlots]);
+  const allSlots = useMemo(
+    () => mergeUniqueSlots([...POPULAR_SLOTS, ...customSlots]),
+    [customSlots],
+  );
+  const normalizedSlotSearchQuery = normalizeSlotName(slotSearchQuery);
+  const hasExactSlotMatch = useMemo(
+    () =>
+      allSlots.some(
+        (slot) =>
+          slot.toLowerCase() === normalizedSlotSearchQuery.toLowerCase(),
+      ),
+    [allSlots, normalizedSlotSearchQuery],
+  );
 
   // Фильтрация слотов по поиску
   const filteredSlots = useMemo(() => {
-    if (!slotSearchQuery) return allSlots;
+    if (!normalizedSlotSearchQuery) return allSlots;
     return allSlots.filter((s) =>
-      s.toLowerCase().includes(slotSearchQuery.toLowerCase()),
+      s.toLowerCase().includes(normalizedSlotSearchQuery.toLowerCase()),
     );
-  }, [slotSearchQuery, allSlots]);
+  }, [allSlots, normalizedSlotSearchQuery]);
 
-  // --- ЗАГРУЗКА И СОХРАНЕНИЕ В FIREBASE/БЕКЕНД ---
+  // --- ЗАГРУЗКА И СОХРАНЕНИЕ В FIREBASE ---
   useEffect(() => {
     if (!userId) return;
     let isMounted = true;
@@ -210,15 +241,13 @@ export default function App() {
 
         const payload = data.data || {};
         if (!isMounted) return;
-
         if (payload.transactions) setTransactions(payload.transactions);
         if (payload.slotGroups && payload.slotGroups.length > 0) {
           setSlotGroups(payload.slotGroups);
           setActiveGroupId(payload.slotGroups[0].id);
         }
-        if (payload.currency) setCurrency(payload.currency);
-        // Загружаем кастомные слоты пользователя
         if (payload.customSlots) setCustomSlots(payload.customSlots);
+        if (payload.currency) setCurrency(payload.currency);
       } catch (error) {
         console.error("Ошибка загрузки данных:", error);
       } finally {
@@ -249,7 +278,7 @@ export default function App() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             initData,
-            data: { transactions, slotGroups, currency, customSlots }, // Добавлены customSlots
+            data: { transactions, slotGroups, customSlots, currency },
           }),
         });
         if (!response.ok) throw new Error("save_failed");
@@ -266,8 +295,8 @@ export default function App() {
   }, [
     transactions,
     slotGroups,
+    customSlots,
     currency,
-    customSlots, // Добавлены customSlots в зависимости автосохранения
     isDataLoaded,
     userId,
     apiBase,
@@ -352,6 +381,33 @@ export default function App() {
     const newWins = [...slotBonusWins];
     newWins[index] = formatInputWithCommas(value);
     setSlotBonusWins(newWins);
+  };
+
+  const closeSlotSearch = () => {
+    setIsSlotSearchOpen(false);
+    setSlotSearchQuery("");
+  };
+
+  const handleSelectSlot = (slot) => {
+    setSlotName(slot);
+    closeSlotSearch();
+  };
+
+  const handleAddCustomSlot = () => {
+    if (!normalizedSlotSearchQuery) return;
+
+    setCustomSlots((prev) => {
+      const existingSlots = mergeUniqueSlots([...POPULAR_SLOTS, ...prev]);
+      const exists = existingSlots.some(
+        (slot) =>
+          slot.toLowerCase() === normalizedSlotSearchQuery.toLowerCase(),
+      );
+
+      if (exists) return prev;
+      return mergeUniqueSlots([...prev, normalizedSlotSearchQuery]);
+    });
+
+    handleSelectSlot(normalizedSlotSearchQuery);
   };
 
   const handleAddSlotSession = (e) => {
@@ -1139,7 +1195,7 @@ export default function App() {
                 className="w-full bg-transparent border-none text-slate-100 placeholder-slate-500 focus:outline-none text-lg"
               />
               <button
-                onClick={() => setIsSlotSearchOpen(false)}
+                onClick={closeSlotSearch}
                 className="text-slate-400 hover:text-white p-1"
               >
                 <X size={24} />
@@ -1148,36 +1204,22 @@ export default function App() {
 
             {/* Список слотов */}
             <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
-              {filteredSlots.length > 0 ? (
-                filteredSlots.map((slot) => (
-                  <button
-                    key={slot}
-                    onClick={() => {
-                      setSlotName(slot);
-                      setIsSlotSearchOpen(false);
-                      setSlotSearchQuery("");
-                    }}
-                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-200 transition-colors"
-                  >
-                    {slot}
-                  </button>
-                ))
-              ) : (
+              {filteredSlots.map((slot) => (
                 <button
-                  onClick={() => {
-                    const newSlot = slotSearchQuery.trim();
-                    // Если такого слота еще нет в общей базе — сохраняем в личные
-                    if (newSlot && !allSlots.includes(newSlot)) {
-                      setCustomSlots((prev) => [...prev, newSlot]);
-                    }
-                    setSlotName(newSlot);
-                    setIsSlotSearchOpen(false);
-                    setSlotSearchQuery("");
-                  }}
+                  key={slot}
+                  onClick={() => handleSelectSlot(slot)}
+                  className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-200 transition-colors"
+                >
+                  {slot}
+                </button>
+              ))}
+              {normalizedSlotSearchQuery && !hasExactSlotMatch && (
+                <button
+                  onClick={handleAddCustomSlot}
                   className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-800 text-indigo-400 transition-colors flex items-center gap-2"
                 >
                   <PlusCircle size={18} />
-                  Добавить "{slotSearchQuery}"
+                  Добавить в мои слоты "{normalizedSlotSearchQuery}"
                 </button>
               )}
             </div>
