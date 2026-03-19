@@ -882,6 +882,9 @@ export default function App() {
 
         <form onSubmit={handleAddSlotSession} className="space-y-4 mt-2">
           <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+              Слот
+            </label>
             <div
               onClick={() => setIsSlotSearchOpen(true)}
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 flex items-center justify-between cursor-pointer hover:border-indigo-500 transition-colors"
@@ -893,39 +896,57 @@ export default function App() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <input
-              type="text"
-              required
-              value={slotBet}
-              onChange={(e) =>
-                setSlotBet(formatInputWithCommas(e.target.value))
-              }
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              placeholder="Размер ставки"
-            />
-            <input
-              type="number"
-              required
-              value={slotSpins}
-              onChange={(e) => setSlotSpins(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              placeholder="Количество спинов"
-            />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                Размер ставки
+              </label>
+              <input
+                type="text"
+                required
+                value={slotBet}
+                onChange={(e) =>
+                  setSlotBet(formatInputWithCommas(e.target.value))
+                }
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                placeholder="Например, 300"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                Количество спинов
+              </label>
+              <input
+                type="number"
+                required
+                value={slotSpins}
+                onChange={(e) => setSlotSpins(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                placeholder="Например, 100"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 items-start">
-            <input
-              type="number"
-              value={slotBonuses}
-              onChange={handleBonusesChange}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              placeholder="Количество бонусных игр, если были"
-            />
+          <div className="grid grid-cols-1 gap-3 items-start sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                Количество бонусных игр
+              </label>
+              <input
+                type="number"
+                value={slotBonuses}
+                onChange={handleBonusesChange}
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                placeholder="Например, 3"
+              />
+            </div>
 
             {/* Динамические поля выигрышей */}
             {slotBonusWins.length > 0 && (
               <div className="flex flex-col gap-2">
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                  Выигрыши по бонусам
+                </label>
                 {slotBonusWins.map((win, index) => (
                   <input
                     key={index}
@@ -937,8 +958,8 @@ export default function App() {
                     className="w-full bg-slate-950 border border-indigo-900/50 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 bg-indigo-950/20"
                     placeholder={
                       slotBonusWins.length > 1
-                        ? `Сумма выигрыша по бонусной игре ${index + 1}`
-                        : "Сумма выигрыша по бонусной игре"
+                        ? `Бонус ${index + 1}`
+                        : "Сумма выигрыша"
                     }
                   />
                 ))}
@@ -947,6 +968,9 @@ export default function App() {
           </div>
 
           <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+              Итоговый баланс
+            </label>
             <input
               type="text"
               required
@@ -955,7 +979,7 @@ export default function App() {
                 setSlotBalance(formatInputWithCommas(e.target.value))
               }
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-              placeholder="Итоговый баланс по сессии"
+              placeholder="Например, 7 980"
             />
           </div>
 
