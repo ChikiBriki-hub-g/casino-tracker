@@ -1,115 +1,38 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   PlusCircle,
-  MinusCircle,
-  TrendingUp,
-  TrendingDown,
-  History,
-  Trash2,
   Wallet,
   Activity,
-  Sparkles,
   Loader2,
   Gamepad2,
-  Copy,
   CheckCircle2,
-  Dices,
   Search,
   X,
   Star,
   ChevronDown,
-  Layers,
+  Sparkles,
 } from "lucide-react";
 
 import { POPULAR_SLOTS } from "./constants/slots";
-
-// Ключи из вашего скриншота
-
-// База популярных слотов
-const SESSION_TAGS = ["buy bonus", "base game", "test", "stream", "high bet"];
-const MAX_RECENT_SLOTS = 8;
-const MAX_RECENT_SESSIONS = 6;
-const PERIOD_FILTERS = [
-  { id: "today", label: "Сегодня", days: 0 },
-  { id: "7d", label: "7 дней", days: 7 },
-  { id: "30d", label: "30 дней", days: 30 },
-  { id: "all", label: "Все время", days: null },
-];
-
-// Форматирование ввода: добавляет запятые (10000 -> 10,000) при вводе
-const formatInputWithCommas = (str) => {
-  if (!str) return "";
-  // Убираем уже существующие запятые и пробелы
-  let clean = str.replace(/[\s,]/g, "");
-  // Ищем числовую часть
-  const match = clean.match(/^(\d+)(.*)$/);
-  if (match) {
-    const numPart = parseInt(match[1], 10);
-    const restPart = match[2];
-    // toLocaleString('en-US') использует запятую как разделитель тысяч
-    const formattedNum = numPart.toLocaleString("en-US");
-    return formattedNum + restPart;
-  }
-  return str;
-};
-
-// Вспомогательные функции для парсинга чисел и расчета иксов
-const parseAmount = (str) => {
-  if (!str) return NaN;
-  // Убираем запятые (разделители) и пробелы
-  let cleanStr = str
-    .toString()
-    .toLowerCase()
-    .replace(/[\s,]/g, "")
-    .replace(",", ".");
-  let multiplier = 1;
-  if (cleanStr.includes("k") || cleanStr.includes("к")) {
-    multiplier = 1000;
-    cleanStr = cleanStr.replace(/[kк]/g, "");
-  } else if (cleanStr.includes("m") || cleanStr.includes("м")) {
-    multiplier = 1000000;
-    cleanStr = cleanStr.replace(/[mм]/g, "");
-  }
-  const val = parseFloat(cleanStr);
-  return isNaN(val) ? NaN : val * multiplier;
-};
-
-const calculateX = (winStr, betStr) => {
-  const win = parseAmount(winStr);
-  const bet = parseAmount(betStr);
-  if (isNaN(win) || isNaN(bet) || bet <= 0) return null;
-  const x = win / bet;
-  return Number.isInteger(x) ? x.toString() : x.toFixed(2).replace(/\.00$/, "");
-};
-
-const normalizeSlotName = (value) => value.trim().replace(/\s+/g, " ");
-
-const mergeUniqueSlots = (slots) => {
-  const uniqueSlots = [];
-  const seen = new Set();
-
-  slots.forEach((slot) => {
-    const normalized = normalizeSlotName(slot);
-    const key = normalized.toLowerCase();
-    if (!normalized || seen.has(key)) return;
-
-    seen.add(key);
-    uniqueSlots.push(normalized);
-  });
-
-  return uniqueSlots.sort((a, b) => a.localeCompare(b));
-};
-
-const includesSlotQuery = (slot, query) => {
-  if (!query) return true;
-  return slot.toLowerCase().includes(query.toLowerCase());
-};
-
-const parseValidDate = (value) => {
-  if (!value) return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-};
+import {
+  SESSION_TAGS,
+  MAX_RECENT_SLOTS,
+  MAX_RECENT_SESSIONS,
+  PERIOD_FILTERS,
+  CURRENCY_OPTIONS,
+} from "./constants/analytics";
+import AnalyticsTab from "./components/analytics/AnalyticsTab";
+import FinanceTab from "./components/finance/FinanceTab";
+import SlotsTab from "./components/slots/SlotsTab";
+import {
+  formatInputWithCommas,
+  parseAmount,
+  calculateX,
+  normalizeSlotName,
+  mergeUniqueSlots,
+  includesSlotQuery,
+  parseValidDate,
+} from "./utils/casino";
 
 export default function App() {
   // --- ИДЕНТИФИКАЦИЯ ТЕЛЕГРАМ ---
@@ -193,7 +116,7 @@ export default function App() {
   const [currency, setCurrency] = useState("₽");
 
   // --- СОСТОЯНИЕ НАВИГАЦИИ ---
-  const [activeTab, setActiveTab] = useState("finance"); // 'finance' | 'slots'
+  const [activeTab, setActiveTab] = useState("finance"); // 'finance' | 'slots' | 'analytics'
 
   // --- СОСТОЯНИЕ ФИНАНСОВ ---
   const [transactions, setTransactions] = useState([]);
@@ -1014,75 +937,6 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
-  const buildEmptyState = (title, description) => (
-    <div className="text-center py-10 bg-slate-900/50 rounded-2xl border border-slate-800/50 border-dashed">
-      <Dices size={30} className="mx-auto text-slate-700 mb-3" />
-      <p className="text-slate-200 text-sm font-semibold">{title}</p>
-      <p className="text-slate-500 text-xs mt-1 max-w-[260px] mx-auto">
-        {description}
-      </p>
-    </div>
-  );
-
-  const LineChart = ({ series, height = 160, color = "#6366f1" }) => {
-    if (!series || series.length === 0) {
-      return (
-        <div className="h-[160px] flex flex-col items-center justify-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl gap-1">
-          <span className="text-slate-300 font-semibold">Пока нет данных</span>
-          <span>Добавьте записи за выбранный период.</span>
-        </div>
-      );
-    }
-
-    const width = 320;
-    const padding = 18;
-    const values = series.map((point) => point.value);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
-    const step =
-      series.length > 1 ? (width - padding * 2) / (series.length - 1) : 0;
-
-    const points = series.map((point, index) => {
-      const x = padding + index * step;
-      const y =
-        padding + (height - padding * 2) * (1 - (point.value - min) / range);
-      return { x, y };
-    });
-
-    const pointsString = points
-      .map((point) => `${point.x},${point.y}`)
-      .join(" ");
-    const lastPoint = points[points.length - 1];
-
-    return (
-      <div>
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[160px]">
-          <polyline
-            fill="none"
-            stroke={color}
-            strokeWidth="2"
-            points={pointsString}
-          />
-          {lastPoint && (
-            <circle
-              cx={lastPoint.x}
-              cy={lastPoint.y}
-              r="3"
-              fill={color}
-              stroke="#0f172a"
-              strokeWidth="2"
-            />
-          )}
-        </svg>
-        <div className="flex items-center justify-between text-[10px] text-slate-500">
-          <span>{min.toFixed(0)}</span>
-          <span>{max.toFixed(0)}</span>
-        </div>
-      </div>
-    );
-  };
-
   const sessionsForAnalyticsScope = useMemo(() => {
     const providerFilter = analyticsProvider.trim().toLowerCase();
     const currencyFilter = analyticsCurrency;
@@ -1682,1265 +1536,100 @@ export default function App() {
     );
   }
 
-  // --- РЕНДЕР ВКЛАДКИ: ФИНАНСЫ ---
   const renderFinanceTab = () => (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      {/* Главная карточка: Профит */}
-      <div
-        className={`relative overflow-hidden rounded-2xl p-6 ${stats.isProfitable ? "bg-emerald-900/20 border border-emerald-500/30" : "bg-rose-900/20 border border-rose-500/30"}`}
-      >
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          {stats.isProfitable ? (
-            <TrendingUp size={100} />
-          ) : (
-            <TrendingDown size={100} />
-          )}
-        </div>
-        <p className="text-sm font-medium text-slate-400 mb-1">
-          Чистая прибыль (Профит)
-        </p>
-        <h2
-          className={`text-4xl font-bold tracking-tight ${stats.isProfitable ? "text-emerald-400" : "text-rose-400"}`}
-        >
-          {stats.netProfit > 0 ? "+" : ""}
-          {formatMoney(stats.netProfit)}
-        </h2>
-        <div className="mt-4 flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
-            <span className="text-slate-400">ROI:</span>
-            <span
-              className={`font-semibold ${stats.isProfitable ? "text-emerald-400" : "text-rose-400"}`}
-            >
-              {stats.roi}%
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Сетка статистики */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
-          <div className="flex items-center gap-2 text-rose-400 mb-2">
-            <MinusCircle size={18} />
-            <span className="text-sm font-medium">Депозиты</span>
-          </div>
-          <p className="text-xl font-semibold text-slate-200">
-            {formatMoney(stats.totalDeposits)}
-          </p>
-        </div>
-        <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
-          <div className="flex items-center gap-2 text-emerald-400 mb-2">
-            <PlusCircle size={18} />
-            <span className="text-sm font-medium">Выводы</span>
-          </div>
-          <p className="text-xl font-semibold text-slate-200">
-            {formatMoney(stats.totalWithdrawals)}
-          </p>
-        </div>
-      </div>
-
-      {/* Быстрые действия */}
-      <div className="grid grid-cols-2 gap-4 pt-2">
-        <button
-          onClick={() => openModal("deposit")}
-          className="flex flex-col items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-2xl p-4 transition-colors shadow-lg shadow-indigo-900/20"
-        >
-          <MinusCircle size={28} />
-          <span className="font-semibold tracking-wide">Депозит</span>
-        </button>
-        <button
-          onClick={() => openModal("withdraw")}
-          className="flex flex-col items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl p-4 transition-colors shadow-lg shadow-emerald-900/20"
-        >
-          <PlusCircle size={28} />
-          <span className="font-semibold tracking-wide">Вывод</span>
-        </button>
-      </div>
-
-      {/* История транзакций */}
-      <div className="pt-4">
-        <div className="flex items-center gap-2 mb-4 px-1">
-          <History size={20} className="text-slate-400" />
-          <h3 className="text-lg font-semibold text-slate-200">Операции</h3>
-        </div>
-        {transactions.length === 0 ? (
-          buildEmptyState(
-            "Операций пока нет",
-            "Добавьте депозит или вывод, чтобы увидеть движение банка и общую картину по финансам.",
-          )
-        ) : (
-          <div className="space-y-3">
-            {transactions.map((t) => (
-              <div
-                key={t.id}
-                className="group bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-full ${t.type === "deposit" ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"}`}
-                  >
-                    {t.type === "deposit" ? (
-                      <TrendingDown size={18} />
-                    ) : (
-                      <TrendingUp size={18} />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-medium text-slate-200">{t.note}</p>
-                    <p className="text-xs text-slate-500">
-                      {formatDate(t.date)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span
-                    className={`font-bold ${t.type === "deposit" ? "text-rose-400" : "text-emerald-400"}`}
-                  >
-                    {t.type === "deposit" ? "-" : "+"}
-                    {formatMoney(t.amount)}
-                  </span>
-                  <button
-                    onClick={() => handleDeleteTransaction(t.id)}
-                    className="text-slate-600 hover:text-rose-500 transition-colors p-1"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <FinanceTab
+      stats={stats}
+      formatMoney={formatMoney}
+      openModal={openModal}
+      transactions={transactions}
+      formatDate={formatDate}
+      handleDeleteTransaction={handleDeleteTransaction}
+    />
   );
 
-  // --- РЕНДЕР ВКЛАДКИ: СЛОТЫ ---
   const renderSlotsTab = () => (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      {/* Управление сессиями (группами) */}
-      <div className="flex items-center justify-between px-1">
-        <div className="flex items-center gap-2">
-          <Layers size={20} className="text-slate-400" />
-          <h3 className="text-lg font-semibold text-slate-200">
-            {editingSession ? "Редактировать запись" : "Новая запись"}
-          </h3>
-        </div>
-        <button
-          onClick={handleCreateNewGroup}
-          className="flex items-center gap-1.5 text-xs font-bold bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition-colors shadow-sm shadow-indigo-900/20"
-        >
-          <PlusCircle size={14} />
-          Новая сессия
-        </button>
-      </div>
+    <SlotsTab
+      editingSession={editingSession}
+      handleCreateNewGroup={handleCreateNewGroup}
+      slotGroups={slotGroups}
+      activeGroupId={activeGroupId}
+      handleAddSlotSession={handleAddSlotSession}
+      resetSlotForm={resetSlotForm}
+      lastSessionInActiveGroup={lastSessionInActiveGroup}
+      currency={currency}
+      handleRepeatLastSlot={handleRepeatLastSlot}
+      handleUseLastBet={handleUseLastBet}
+      handleDuplicateLastSession={handleDuplicateLastSession}
+      setIsSlotSearchOpen={setIsSlotSearchOpen}
+      slotName={slotName}
+      slotProvider={slotProvider}
+      setSlotProvider={setSlotProvider}
+      providerOptions={providerOptions}
+      slotBet={slotBet}
+      setSlotBet={setSlotBet}
+      slotSpins={slotSpins}
+      setSlotSpins={setSlotSpins}
+      slotBonuses={slotBonuses}
+      handleBonusesChange={handleBonusesChange}
+      slotBonusWins={slotBonusWins}
+      handleBonusWinChange={handleBonusWinChange}
+      SESSION_TAGS={SESSION_TAGS}
+      slotTags={slotTags}
+      setSlotTags={setSlotTags}
+      slotBalance={slotBalance}
+      setSlotBalance={setSlotBalance}
+      recentSessions={recentSessions}
+      MAX_RECENT_SESSIONS={MAX_RECENT_SESSIONS}
+      formatDate={formatDate}
+      getSessionBadges={getSessionBadges}
+      getMetricBadgeClass={getMetricBadgeClass}
+      applySessionToForm={applySessionToForm}
+      handleStartEditSession={handleStartEditSession}
+      handleDuplicateSession={handleDuplicateSession}
+      pendingDelete={pendingDelete}
+      handleDeleteGroup={handleDeleteGroup}
+      clearPendingDelete={clearPendingDelete}
+      handleRequestDeleteGroup={handleRequestDeleteGroup}
+      copiedGroupId={copiedGroupId}
+      copyToClipboard={copyToClipboard}
+      setActiveGroupId={setActiveGroupId}
+      handleDeleteSlotSession={handleDeleteSlotSession}
+      handleRequestDeleteSession={handleRequestDeleteSession}
+    />
+  );
 
-      {/* Форма добавления лога (Добавляет в АКТИВНУЮ сессию) */}
-      <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg relative">
-        {/* Индикатор активной сессии для формы */}
-        <div className="absolute top-0 right-5 -translate-y-1/2 bg-slate-800 border border-slate-700 text-xs font-semibold px-3 py-1 rounded-full text-slate-300 flex gap-2 shadow-md">
-          В сессию:{" "}
-          <span className="text-indigo-400">
-            {slotGroups.find((g) => g.id === activeGroupId)?.name || ""}
-          </span>
-        </div>
-
-        <form onSubmit={handleAddSlotSession} className="space-y-4 mt-2">
-          {editingSession && (
-            <div className="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-              <span>
-                Вы редактируете запись. Изменения сохранятся в текущей сессии.
-              </span>
-              <button
-                type="button"
-                onClick={resetSlotForm}
-                className="rounded-lg bg-amber-500/20 px-2.5 py-1 text-[11px] font-semibold text-amber-100 hover:bg-amber-500/30"
-              >
-                Отменить
-              </button>
-            </div>
-          )}
-
-          {lastSessionInActiveGroup && (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3">
-              <div className="flex items-center justify-between gap-3 text-xs text-slate-400">
-                <span>
-                  Последняя запись:{" "}
-                  <span className="font-semibold text-slate-200">
-                    {lastSessionInActiveGroup.name}
-                  </span>
-                </span>
-                <span className="text-[11px]">
-                  ставка {lastSessionInActiveGroup.bet}
-                  {lastSessionInActiveGroup.sessionCurrency || currency}
-                </span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={handleRepeatLastSlot}
-                  className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-                >
-                  Повторить слот
-                </button>
-                <button
-                  type="button"
-                  onClick={handleUseLastBet}
-                  className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-                >
-                  Повторить ставку
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDuplicateLastSession}
-                  className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-600/30"
-                >
-                  Дублировать сессию
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-              Слот
-            </label>
-            <div
-              onClick={() => setIsSlotSearchOpen(true)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 flex items-center justify-between cursor-pointer hover:border-indigo-500 transition-colors"
-            >
-              <span className={slotName ? "text-slate-100" : "text-slate-500"}>
-                {slotName || "Выберите слот"}
-              </span>
-              <Search size={18} className="text-slate-500" />
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-              Провайдер
-            </label>
-            <input
-              type="text"
-              list="provider-options"
-              value={slotProvider}
-              onChange={(e) => setSlotProvider(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              placeholder="Например, Pragmatic Play"
-            />
-            <datalist id="provider-options">
-              {providerOptions.map((provider) => (
-                <option key={provider} value={provider} />
-              ))}
-            </datalist>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-                Размер ставки
-              </label>
-              <input
-                type="text"
-                required
-                value={slotBet}
-                onChange={(e) =>
-                  setSlotBet(formatInputWithCommas(e.target.value))
-                }
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                placeholder="Например, 300"
-              />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-                Количество спинов
-              </label>
-              <input
-                type="number"
-                required
-                value={slotSpins}
-                onChange={(e) => setSlotSpins(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                placeholder="Например, 100"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 items-start sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-                Количество бонусных игр
-              </label>
-              <input
-                type="number"
-                value={slotBonuses}
-                onChange={handleBonusesChange}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                placeholder="Например, 3"
-              />
-            </div>
-
-            {/* Динамические поля выигрышей */}
-            {slotBonusWins.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-                  Выигрыши по бонусам
-                </label>
-                {slotBonusWins.map((win, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    value={win}
-                    onChange={(e) =>
-                      handleBonusWinChange(index, e.target.value)
-                    }
-                    className="w-full bg-slate-950 border border-indigo-900/50 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 bg-indigo-950/20"
-                    placeholder={
-                      slotBonusWins.length > 1
-                        ? `Бонус ${index + 1}`
-                        : "Сумма выигрыша"
-                    }
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-              Теги сессии
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {SESSION_TAGS.map((tag) => {
-                const active = slotTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() =>
-                      setSlotTags((prev) =>
-                        prev.includes(tag)
-                          ? prev.filter((item) => item !== tag)
-                          : [...prev, tag],
-                      )
-                    }
-                    className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
-                      active
-                        ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
-                        : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-              Итоговый баланс
-            </label>
-            <input
-              type="text"
-              required
-              value={slotBalance}
-              onChange={(e) =>
-                setSlotBalance(formatInputWithCommas(e.target.value))
-              }
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-              placeholder="Например, 7 980"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl font-semibold transition-colors shadow-lg shadow-indigo-900/20"
-          >
-            {editingSession ? "Сохранить" : "Добавить запись"}
-          </button>
-        </form>
-      </div>
-
-      <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg">
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <Sparkles size={18} className="text-slate-400" />
-            <h3 className="text-lg font-semibold text-slate-200">Аналитика</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleExportCsv}
-              className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-            >
-              {analyticsActionState === "csv" ? "CSV готов" : "Экспорт CSV"}
-            </button>
-            <button
-              type="button"
-              onClick={handleCopyReport}
-              className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-[11px] font-semibold text-indigo-200 hover:bg-indigo-600/30"
-            >
-              {analyticsActionState === "report"
-                ? "Отчет скопирован"
-                : "Текстовый отчет"}
-            </button>
-            <button
-              type="button"
-              onClick={handleDownloadReport}
-              className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-            >
-              {analyticsActionState === "report-file"
-                ? "TXT готов"
-                : "Скачать TXT"}
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-4">
-          {PERIOD_FILTERS.map((period) => (
-            <button
-              key={period.id}
-              type="button"
-              onClick={() => setAnalyticsPeriod(period.id)}
-              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
-                analyticsPeriod === period.id
-                  ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
-                  : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-              }`}
-            >
-              {period.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 mb-4">
-          <div>
-            <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
-              Провайдер
-            </label>
-            <select
-              value={analyticsProvider}
-              onChange={(e) => setAnalyticsProvider(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-indigo-500"
-            >
-              <option value="all">Все провайдеры</option>
-              {providerOptions.map((provider) => (
-                <option key={provider} value={provider.toLowerCase()}>
-                  {provider}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-slate-400">
-              Валюта
-            </label>
-            <select
-              value={analyticsCurrency}
-              onChange={(e) => setAnalyticsCurrency(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-indigo-500"
-            >
-              <option value="all">Все валюты</option>
-              <option value="₽">RUB (₽)</option>
-              <option value="$">USD ($)</option>
-              <option value="€">EUR (€)</option>
-              <option value="₴">UAH (₴)</option>
-              <option value="₸">KZT (₸)</option>
-              <option value="Br">BYN (Br)</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-4">
-          <button
-            type="button"
-            onClick={() => setFilterFavoritesOnly((prev) => !prev)}
-            className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
-              filterFavoritesOnly
-                ? "bg-amber-500/20 text-amber-200 border border-amber-500/40"
-                : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-            }`}
-          >
-            Только избранные
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilterCustomOnly((prev) => !prev)}
-            className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
-              filterCustomOnly
-                ? "bg-emerald-500/20 text-emerald-200 border border-emerald-500/40"
-                : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-            }`}
-          >
-            Только мои слоты
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3">
-            <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
-              Сессии
-            </p>
-            <p className="text-lg font-semibold text-slate-100">
-              {analyticsSummary.totalSessions}
-            </p>
-          </div>
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3">
-            <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
-              Спины
-            </p>
-            <p className="text-lg font-semibold text-slate-100">
-              {formatNumber(analyticsSummary.totalSpins)}
-            </p>
-          </div>
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3">
-            <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
-              Средняя ставка
-            </p>
-            <p className="text-lg font-semibold text-slate-200">
-              {analyticsCurrency === "all"
-                ? formatNumber(analyticsSummary.avgBet)
-                : formatMoneyWithCurrency(
-                    analyticsSummary.avgBet,
-                    analyticsCurrency,
-                  )}
-            </p>
-          </div>
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3">
-            <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
-              Последний баланс
-            </p>
-            <p
-              className={`text-lg font-semibold ${getMetricToneClass(
-                analyticsSummary.lastBalance,
-              )}`}
-            >
-              {analyticsCurrency === "all"
-                ? formatNumber(analyticsSummary.lastBalance)
-                : formatMoneyWithCurrency(
-                    analyticsSummary.lastBalance,
-                    analyticsCurrency,
-                  )}
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-slate-200">
-                График баланса
-              </h4>
-              <span className="text-[10px] text-slate-500">
-                {analyticsCurrency === "all"
-                  ? "Все валюты"
-                  : `Валюта: ${analyticsCurrency}`}
-              </span>
-            </div>
-            <LineChart series={balanceSeries} color="#818cf8" />
-          </div>
-          <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-slate-200">
-                P/L по дням
-              </h4>
-              <span className="text-[10px] text-slate-500">
-                {analyticsCurrency === "all"
-                  ? "Все валюты"
-                  : `Валюта: ${analyticsCurrency}`}
-              </span>
-            </div>
-            <LineChart series={plSeries} color="#22c55e" />
-          </div>
-        </div>
-
-        <div className="mt-4 bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-slate-200 mb-3">
-            Ключевые выводы
-          </h4>
-          <div className="space-y-2">
-            {analyticsInsights.map((insight, index) => (
-              <div
-                key={`${index}-${insight}`}
-                className="text-xs text-slate-300 bg-slate-900/60 border border-slate-800 rounded-lg px-3 py-2"
-              >
-                {index + 1}. {insight}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-4 bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-slate-200 mb-3">
-            Сравнение периодов
-          </h4>
-          {periodComparison ? (
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
-                <p className="text-slate-500 uppercase tracking-wider mb-2">
-                  Текущий
-                </p>
-                <p className="text-slate-200">
-                  Сессии: {periodComparison.current.sessions}
-                </p>
-                <p className="text-slate-200">
-                  Спины: {formatNumber(periodComparison.current.spins)}
-                </p>
-                <p
-                  className={getMetricToneClass(
-                    periodComparison.current.totalResult,
-                  )}
-                >
-                  P/L: {formatNumber(periodComparison.current.totalResult)}
-                </p>
-              </div>
-              <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
-                <p className="text-slate-500 uppercase tracking-wider mb-2">
-                  Предыдущий
-                </p>
-                <p className="text-slate-200">
-                  Сессии: {periodComparison.previous.sessions}
-                </p>
-                <p className="text-slate-200">
-                  Спины: {formatNumber(periodComparison.previous.spins)}
-                </p>
-                <p
-                  className={getMetricToneClass(
-                    periodComparison.previous.totalResult,
-                  )}
-                >
-                  P/L: {formatNumber(periodComparison.previous.totalResult)}
-                </p>
-              </div>
-              <div className="col-span-2 bg-slate-900/60 border border-slate-800 rounded-lg p-3">
-                <p className="text-slate-500 uppercase tracking-wider mb-2">
-                  Дельта
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  <p
-                    className={getMetricToneClass(
-                      periodComparison.diff.sessions,
-                    )}
-                  >
-                    Сессии: {periodComparison.diff.sessions > 0 ? "+" : ""}
-                    {periodComparison.diff.sessions}
-                  </p>
-                  <p
-                    className={getMetricToneClass(periodComparison.diff.spins)}
-                  >
-                    Спины: {periodComparison.diff.spins > 0 ? "+" : ""}
-                    {formatNumber(periodComparison.diff.spins)}
-                  </p>
-                  <p
-                    className={getMetricToneClass(
-                      periodComparison.diff.totalResult,
-                    )}
-                  >
-                    P/L: {periodComparison.diff.totalResult > 0 ? "+" : ""}
-                    {formatNumber(periodComparison.diff.totalResult)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500">
-              Для сравнения выберите период Сегодня / 7 дней / 30 дней.
-            </p>
-          )}
-        </div>
-
-        <div className="mt-4 bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-slate-200 mb-3">Топы</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
-              <p className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">
-                Лучшие слоты (ROI)
-              </p>
-              {slotTops.bestSlots.length === 0 ? (
-                <p className="text-xs text-slate-500">Нет данных по фильтру.</p>
-              ) : (
-                slotTops.bestSlots.map((slot) => (
-                  <p
-                    key={`best-${slot.slot}`}
-                    className="text-xs text-slate-200"
-                  >
-                    {slot.slot} · {slot.roi?.toFixed(2)}%
-                  </p>
-                ))
-              )}
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
-              <p className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">
-                Худшие слоты (ROI)
-              </p>
-              {slotTops.worstSlots.length === 0 ? (
-                <p className="text-xs text-slate-500">Нет данных по фильтру.</p>
-              ) : (
-                slotTops.worstSlots.map((slot) => (
-                  <p
-                    key={`worst-${slot.slot}`}
-                    className="text-xs text-slate-200"
-                  >
-                    {slot.slot} · {slot.roi?.toFixed(2)}%
-                  </p>
-                ))
-              )}
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
-              <p className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">
-                Самые частые
-              </p>
-              {slotTops.mostFrequent.length === 0 ? (
-                <p className="text-xs text-slate-500">Нет данных по фильтру.</p>
-              ) : (
-                slotTops.mostFrequent.map((slot) => (
-                  <p
-                    key={`freq-${slot.slot}`}
-                    className="text-xs text-slate-200"
-                  >
-                    {slot.slot} · {slot.sessions} сесс.
-                  </p>
-                ))
-              )}
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
-              <p className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">
-                Лучшие по x
-              </p>
-              {slotTops.bestByX.length === 0 ? (
-                <p className="text-xs text-slate-500">Нет данных по фильтру.</p>
-              ) : (
-                slotTops.bestByX.map((slot) => (
-                  <p key={`x-${slot.slot}`} className="text-xs text-slate-200">
-                    {slot.slot} · x{slot.bestX}
-                  </p>
-                ))
-              )}
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-3 sm:col-span-2">
-              <p className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">
-                Лучшие по прибыли
-              </p>
-              {slotTops.bestByProfit.length === 0 ? (
-                <p className="text-xs text-slate-500">Нет данных по фильтру.</p>
-              ) : (
-                slotTops.bestByProfit.map((slot) => (
-                  <p
-                    key={`profit-${slot.slot}`}
-                    className={`text-xs ${getMetricToneClass(slot.totalResult)}`}
-                  >
-                    {slot.slot} · {formatNumber(slot.totalResult)}
-                  </p>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-slate-200 mb-3">
-            Сводка по слотам
-          </h4>
-          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-            {slotAnalytics.length === 0 ? (
-              <p className="text-xs text-slate-500">
-                Нет записей для выбранных фильтров.
-              </p>
-            ) : (
-              slotAnalytics.map((slot) => (
-                <div
-                  key={`slot-metrics-${slot.slot}`}
-                  className="bg-slate-900/60 border border-slate-800 rounded-lg p-3"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-slate-100">
-                      {slot.slot}
-                    </p>
-                    <p
-                      className={`text-xs font-semibold ${getMetricToneClass(slot.totalResult)}`}
-                    >
-                      {formatNumber(slot.totalResult)}
-                    </p>
-                  </div>
-                  <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-slate-300">
-                    <p>Сессии: {slot.sessions}</p>
-                    <p>Спины: {formatNumber(slot.spins)}</p>
-                    <p>Бонусы: {slot.bonuses}</p>
-                    <p>Ср. ставка: {formatNumber(slot.averageBet)}</p>
-                    <p>
-                      Ср. бонус:{" "}
-                      {slot.averageBonusWin
-                        ? formatNumber(slot.averageBonusWin)
-                        : "—"}
-                    </p>
-                    <p>Лучший x: x{slot.bestX || 0}</p>
-                    <p>
-                      ROI: {slot.roi !== null ? `${slot.roi.toFixed(2)}%` : "—"}
-                    </p>
-                    <p>
-                      Хитрейт:{" "}
-                      {slot.bonusHitRate !== null
-                        ? `${slot.bonusHitRate.toFixed(2)}%`
-                        : "—"}
-                    </p>
-                    <p>
-                      Спины/бонус:{" "}
-                      {slot.averageSpinsToBonus
-                        ? slot.averageSpinsToBonus.toFixed(1)
-                        : "—"}
-                    </p>
-                    <p>
-                      Лучший win:{" "}
-                      {slot.bestWin ? formatNumber(slot.bestWin) : "—"}
-                    </p>
-                    <p>
-                      Лучшая сессия:{" "}
-                      {slot.bestSession
-                        ? formatNumber(slot.bestSession.value)
-                        : "—"}
-                    </p>
-                    <p>
-                      Худшая сессия:{" "}
-                      {slot.worstSession
-                        ? formatNumber(slot.worstSession.value)
-                        : "—"}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="mt-4 bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-slate-200 mb-3">
-            Провайдеры
-          </h4>
-          <div className="space-y-2">
-            {providerAnalytics.length === 0 ? (
-              <p className="text-xs text-slate-500">
-                Нет записей для выбранных фильтров.
-              </p>
-            ) : (
-              providerAnalytics.map((provider) => (
-                <div
-                  key={`provider-${provider.provider}`}
-                  className="bg-slate-900/60 border border-slate-800 rounded-lg p-3 flex items-center justify-between gap-3"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-slate-100">
-                      {provider.provider}
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      {provider.sessions} сесс. · {formatNumber(provider.spins)}{" "}
-                      спинов
-                    </p>
-                  </div>
-                  <div className="text-right text-xs">
-                    <p className={getMetricToneClass(provider.totalResult)}>
-                      {formatNumber(provider.totalResult)}
-                    </p>
-                    <p className="text-slate-400">
-                      ROI{" "}
-                      {provider.roi !== null
-                        ? `${provider.roi.toFixed(2)}%`
-                        : "—"}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="mt-4 bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-          <div className="flex items-center justify-between gap-3 mb-2">
-            <h4 className="text-sm font-semibold text-slate-200">Отчет</h4>
-            <span className="text-[10px] text-slate-500">
-              Короткий текст за выбранный период
-            </span>
-          </div>
-          <pre className="whitespace-pre-wrap text-xs leading-6 text-slate-300 font-sans">
-            {analyticsReportText}
-          </pre>
-        </div>
-      </div>
-
-      <div className="pt-4">
-        {recentSessions.length > 0 ? (
-          <div>
-            <div className="flex items-center gap-2 mb-4 px-1">
-              <History size={20} className="text-slate-400" />
-              <h3 className="text-lg font-semibold text-slate-200">
-                Недавние записи
-              </h3>
-            </div>
-            <div className="space-y-3">
-              {recentSessions.slice(0, MAX_RECENT_SESSIONS).map((session) => (
-                <div
-                  key={`${session.id}-recent`}
-                  className="bg-slate-900/70 border border-slate-800 rounded-xl p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-100">
-                        {session.name}
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        {session.groupName} · {formatDate(session.date)}
-                      </p>
-                    </div>
-                    <div className="text-right text-xs text-slate-400">
-                      ставка {session.bet}
-                      {session.sessionCurrency || currency}
-                    </div>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
-                    {getSessionBadges(session).map((badge) => (
-                      <span
-                        key={badge.id}
-                        className={`rounded-full px-2 py-0.5 ${getMetricBadgeClass(
-                          badge.tone,
-                        )}`}
-                      >
-                        {badge.label}
-                      </span>
-                    ))}
-                  </div>
-                  {(session.provider || (session.tags || []).length > 0) && (
-                    <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
-                      {session.provider && (
-                        <span className="rounded-full bg-slate-800 px-2 py-1 text-slate-200">
-                          {session.provider}
-                        </span>
-                      )}
-                      {(session.tags || []).map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-indigo-500/10 px-2 py-1 text-indigo-200"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => applySessionToForm(session)}
-                      className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-                    >
-                      Повторить
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleStartEditSession(session.groupId, session)
-                      }
-                      className="rounded-lg bg-amber-500/20 px-3 py-1.5 text-[11px] font-semibold text-amber-200 hover:bg-amber-500/30"
-                    >
-                      Редактировать
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDuplicateSession(session)}
-                      className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-600/30"
-                    >
-                      Дублировать
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          buildEmptyState(
-            "Недавних записей нет",
-            "Добавьте первую запись в сессию. Здесь появятся быстрые действия и статусы.",
-          )
-        )}
-      </div>
-
-      {/* Список сессий и записей */}
-      <div className="pt-4 space-y-6">
-        {slotGroups.map((group) => (
-          <div
-            key={group.id}
-            className={`bg-[#0f172a] rounded-2xl border ${activeGroupId === group.id ? "border-indigo-500/50" : "border-slate-800"} overflow-hidden shadow-lg`}
-          >
-            {/* Шапка группы */}
-            <div
-              className={`flex items-center justify-between p-3 border-b ${activeGroupId === group.id ? "bg-indigo-950/20 border-indigo-500/30" : "bg-slate-900/50 border-slate-800"}`}
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className={`font-bold ${activeGroupId === group.id ? "text-indigo-400" : "text-slate-300"}`}
-                >
-                  {group.name}
-                </span>
-                {activeGroupId !== group.id && (
-                  <button
-                    onClick={() => setActiveGroupId(group.id)}
-                    className="text-[10px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-400 px-2 py-1 rounded transition-colors"
-                  >
-                    Сделать активной
-                  </button>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                {group.items.length > 0 && (
-                  <button
-                    onClick={() => copyToClipboard(group.id)}
-                    className="flex items-center gap-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
-                  >
-                    {copiedGroupId === group.id ? (
-                      <CheckCircle2 size={14} className="text-emerald-400" />
-                    ) : (
-                      <Copy size={14} />
-                    )}
-                    {copiedGroupId === group.id ? "Скопировано!" : "Копировать"}
-                  </button>
-                )}
-                {slotGroups.length > 1 && (
-                  <>
-                    {pendingDelete?.type === "group" &&
-                    pendingDelete.groupId === group.id ? (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            handleDeleteGroup(group.id);
-                            clearPendingDelete();
-                          }}
-                          className="text-[10px] font-semibold bg-rose-500/20 text-rose-200 px-2 py-1 rounded-lg hover:bg-rose-500/30"
-                        >
-                          Удалить
-                        </button>
-                        <button
-                          onClick={clearPendingDelete}
-                          className="text-[10px] font-semibold bg-slate-800 text-slate-300 px-2 py-1 rounded-lg hover:bg-slate-700"
-                        >
-                          Отмена
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleRequestDeleteGroup(group.id)}
-                        className="text-slate-500 hover:text-rose-400 bg-slate-800 hover:bg-slate-700 p-1.5 rounded-lg transition-colors"
-                        title="Удалить сессию целиком"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Записи внутри группы */}
-            <div className="p-3">
-              {group.items.length === 0 ? (
-                buildEmptyState(
-                  "Сессия пока пустая",
-                  "Нажмите «Добавить запись» выше и внесите первую игру в эту сессию.",
-                )
-              ) : (
-                <div className="space-y-3">
-                  {group.items.map((session, index) => {
-                    const cur = session.sessionCurrency || currency;
-
-                    // Логика цвета баланса (сравниваем с ПРЕДЫДУЩИМ логом, который идет по индексу +1, т.к. массив реверснут)
-                    const prevSession = group.items[index + 1];
-                    const currBal = parseAmount(session.balance);
-                    const prevBal = prevSession
-                      ? parseAmount(prevSession.balance)
-                      : null;
-
-                    let balColorClass = "text-slate-200"; // Нейтральный цвет для первого лога
-                    let TrendIcon = null;
-
-                    if (
-                      prevBal !== null &&
-                      !isNaN(currBal) &&
-                      !isNaN(prevBal)
-                    ) {
-                      if (currBal > prevBal) {
-                        balColorClass = "text-emerald-400";
-                        TrendIcon = TrendingUp;
-                      } else if (currBal < prevBal) {
-                        balColorClass = "text-rose-400";
-                        TrendIcon = TrendingDown;
-                      }
-                    }
-
-                    return (
-                      <div
-                        key={session.id}
-                        className="bg-[#1e293b] border border-slate-700/50 rounded-xl p-3 shadow-sm hover:border-slate-600 transition-colors relative group/item"
-                      >
-                        <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-all">
-                          {pendingDelete?.type === "session" &&
-                          pendingDelete.groupId === group.id &&
-                          pendingDelete.sessionId === session.id ? (
-                            <>
-                              <button
-                                onClick={() => {
-                                  handleDeleteSlotSession(group.id, session.id);
-                                  clearPendingDelete();
-                                }}
-                                className="text-[10px] font-semibold bg-rose-500/20 text-rose-200 px-2 py-1 rounded-md hover:bg-rose-500/30"
-                              >
-                                Удалить
-                              </button>
-                              <button
-                                onClick={clearPendingDelete}
-                                className="text-[10px] font-semibold bg-slate-800 text-slate-300 px-2 py-1 rounded-md hover:bg-slate-700"
-                              >
-                                Отмена
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() =>
-                                  handleStartEditSession(group.id, session)
-                                }
-                                className="text-[10px] font-semibold bg-amber-500/20 text-amber-200 px-2 py-1 rounded-md hover:bg-amber-500/30"
-                              >
-                                Редактировать
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleRequestDeleteSession(
-                                    group.id,
-                                    session.id,
-                                  )
-                                }
-                                className="text-slate-500 hover:text-rose-400 transition-all p-1 bg-slate-900/50 rounded-md"
-                                title="Удалить запись"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </>
-                          )}
-                        </div>
-
-                        <h4 className="font-bold text-slate-200 flex items-center gap-2 mb-2 text-sm">
-                          <Gamepad2 size={14} className="text-indigo-400" />
-                          {session.name}
-                        </h4>
-
-                        <div className="mb-2 flex flex-wrap gap-1.5 text-[10px]">
-                          {getSessionBadges(session).map((badge) => (
-                            <span
-                              key={`${session.id}-${badge.id}`}
-                              className={`rounded-full px-2 py-0.5 ${getMetricBadgeClass(
-                                badge.tone,
-                              )}`}
-                            >
-                              {badge.label}
-                            </span>
-                          ))}
-                        </div>
-
-                        {(session.provider ||
-                          (session.tags && session.tags.length > 0)) && (
-                          <div className="mb-2 flex flex-wrap gap-1.5 text-[10px]">
-                            {session.provider && (
-                              <span className="rounded-full bg-slate-900/60 border border-slate-700 px-2 py-0.5 text-slate-200">
-                                {session.provider}
-                              </span>
-                            )}
-                            {(session.tags || []).map((tag) => (
-                              <span
-                                key={tag}
-                                className="rounded-full bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 text-indigo-200"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="grid grid-cols-3 gap-2 mb-3">
-                          <div className="bg-slate-900/50 rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
-                            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
-                              Ставка
-                            </span>
-                            <span className="font-semibold text-slate-300 text-xs">
-                              {session.bet}
-                              {cur}
-                            </span>
-                          </div>
-                          <div className="bg-slate-900/50 rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
-                            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
-                              Спины
-                            </span>
-                            <span className="font-semibold text-slate-300 text-xs">
-                              {session.spins}
-                            </span>
-                          </div>
-                          <div className="bg-slate-900/50 rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
-                            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
-                              Бонуски
-                            </span>
-                            <span className="font-semibold text-slate-300 text-xs">
-                              {session.bonuses}
-                            </span>
-                          </div>
-                        </div>
-
-                        {session.bonusWins && session.bonusWins.length > 0 && (
-                          <div className="mb-3 space-y-1.5">
-                            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider block">
-                              Выигрыши:
-                            </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {session.bonusWins.map((win, i) => {
-                                const x = calculateX(win, session.bet);
-                                return (
-                                  <div
-                                    key={i}
-                                    className="flex items-center bg-indigo-950/30 border border-indigo-500/30 rounded-md overflow-hidden"
-                                  >
-                                    <span className="px-2 py-0.5 text-xs font-medium text-indigo-100">
-                                      {win}
-                                      {cur}
-                                    </span>
-                                    {x && (
-                                      <span className="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-300 text-[10px] font-bold border-l border-indigo-500/30">
-                                        x{x}
-                                      </span>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between">
-                          <span className="text-xs text-slate-400 font-medium">
-                            Баланс:
-                          </span>
-                          <span
-                            className={`font-bold text-sm flex items-center gap-1 ${balColorClass}`}
-                          >
-                            {TrendIcon && <TrendIcon size={14} />}
-                            {session.balance}
-                            {cur}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+  const renderAnalyticsTab = () => (
+    <AnalyticsTab
+      PERIOD_FILTERS={PERIOD_FILTERS}
+      analyticsActionState={analyticsActionState}
+      handleExportCsv={handleExportCsv}
+      handleCopyReport={handleCopyReport}
+      handleDownloadReport={handleDownloadReport}
+      analyticsPeriod={analyticsPeriod}
+      setAnalyticsPeriod={setAnalyticsPeriod}
+      analyticsProvider={analyticsProvider}
+      setAnalyticsProvider={setAnalyticsProvider}
+      providerOptions={providerOptions}
+      currencyOptions={CURRENCY_OPTIONS}
+      analyticsCurrency={analyticsCurrency}
+      setAnalyticsCurrency={setAnalyticsCurrency}
+      filterFavoritesOnly={filterFavoritesOnly}
+      setFilterFavoritesOnly={setFilterFavoritesOnly}
+      filterCustomOnly={filterCustomOnly}
+      setFilterCustomOnly={setFilterCustomOnly}
+      analyticsSummary={analyticsSummary}
+      formatNumber={formatNumber}
+      formatMoneyWithCurrency={formatMoneyWithCurrency}
+      getMetricToneClass={getMetricToneClass}
+      balanceSeries={balanceSeries}
+      plSeries={plSeries}
+      analyticsInsights={analyticsInsights}
+      periodComparison={periodComparison}
+      slotTops={slotTops}
+      slotAnalytics={slotAnalytics}
+      providerAnalytics={providerAnalytics}
+      analyticsReportText={analyticsReportText}
+    />
   );
 
   return (
@@ -2992,12 +1681,11 @@ export default function App() {
                 onChange={(e) => setCurrency(e.target.value)}
                 className="appearance-none bg-slate-800/80 text-slate-200 border border-slate-700 rounded-xl pl-3 pr-8 py-1.5 text-sm font-semibold focus:outline-none focus:border-indigo-500 cursor-pointer"
               >
-                <option value="₽">RUB (₽)</option>
-                <option value="$">USD ($)</option>
-                <option value="€">EUR (€)</option>
-                <option value="₴">UAH (₴)</option>
-                <option value="₸">KZT (₸)</option>
-                <option value="Br">BYN (Br)</option>
+                {CURRENCY_OPTIONS.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
               </select>
               <ChevronDown
                 size={14}
@@ -3009,7 +1697,9 @@ export default function App() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-6">
-        {activeTab === "finance" ? renderFinanceTab() : renderSlotsTab()}
+        {activeTab === "finance" && renderFinanceTab()}
+        {activeTab === "slots" && renderSlotsTab()}
+        {activeTab === "analytics" && renderAnalyticsTab()}
       </main>
 
       {/* Нижняя навигация */}
@@ -3038,6 +1728,19 @@ export default function App() {
             />
             <span className="text-[10px] font-semibold uppercase tracking-wider">
               Слоты
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === "analytics" ? "text-indigo-400" : "text-slate-500 hover:text-slate-400"}`}
+          >
+            <Sparkles
+              size={24}
+              className={activeTab === "analytics" ? "fill-indigo-900/20" : ""}
+            />
+            <span className="text-[10px] font-semibold uppercase tracking-wider">
+              Аналитика
             </span>
           </button>
         </div>
