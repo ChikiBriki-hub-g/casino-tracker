@@ -13,7 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { POPULAR_SLOTS } from "./constants/slots";
+import { POPULAR_SLOTS, POPULAR_SLOT_PROVIDER_MAP } from "./constants/slots";
 import {
   SESSION_TAGS,
   MAX_RECENT_SLOTS,
@@ -155,6 +155,8 @@ export default function App() {
   const [slotSearchQuery, setSlotSearchQuery] = useState("");
   const [customSlots, setCustomSlots] = useState([]);
   const [favoriteSlots, setFavoriteSlots] = useState([]);
+  const [slotProviders, setSlotProviders] = useState({});
+  const [newSlotProvider, setNewSlotProvider] = useState("");
 
   const allSlots = useMemo(
     () =>
@@ -233,24 +235,38 @@ export default function App() {
 
   const providerBySlot = useMemo(() => {
     const map = new Map();
+    Object.entries(POPULAR_SLOT_PROVIDER_MAP).forEach(([slot, provider]) => {
+      const normalizedSlot = normalizeSlotName(slot);
+      const normalizedProvider = (provider || "").trim();
+      if (!normalizedSlot || !normalizedProvider) return;
+      map.set(normalizedSlot.toLowerCase(), normalizedProvider);
+    });
+
+    const seenSessionProviders = new Set();
     recentSessions.forEach((session) => {
       const slot = normalizeSlotName(session.name || "");
       const provider = (session.provider || "").trim();
       if (!slot || !provider) return;
       const key = slot.toLowerCase();
-      if (!map.has(key)) map.set(key, provider);
+      if (seenSessionProviders.has(key)) return;
+      seenSessionProviders.add(key);
+      map.set(key, provider);
     });
+
+    Object.entries(slotProviders || {}).forEach(([slotKey, provider]) => {
+      const normalizedSlotKey = normalizeSlotName(slotKey).toLowerCase();
+      const normalizedProvider = (provider || "").trim();
+      if (!normalizedSlotKey || !normalizedProvider) return;
+      map.set(normalizedSlotKey, normalizedProvider);
+    });
+
     return map;
-  }, [recentSessions]);
+  }, [recentSessions, slotProviders]);
 
   const providerOptions = useMemo(() => {
-    const unique = new Set();
-    recentSessions.forEach((session) => {
-      const provider = (session.provider || "").trim();
-      if (provider) unique.add(provider);
-    });
+    const unique = new Set(providerBySlot.values());
     return [...unique].sort((a, b) => a.localeCompare(b));
-  }, [recentSessions]);
+  }, [providerBySlot]);
 
   // Фильтрация слотов по поиску
   const slotSections = useMemo(() => {
@@ -311,6 +327,22 @@ export default function App() {
   );
   const lastSessionInActiveGroup = activeGroup?.items?.[0] || null;
 
+  useEffect(() => {
+    if (!isSlotSearchOpen) return;
+    if (!normalizedSlotSearchQuery || hasExactSlotMatch) {
+      setNewSlotProvider("");
+      return;
+    }
+    const provider =
+      providerBySlot.get(normalizedSlotSearchQuery.toLowerCase()) || "";
+    setNewSlotProvider(provider);
+  }, [
+    isSlotSearchOpen,
+    normalizedSlotSearchQuery,
+    hasExactSlotMatch,
+    providerBySlot,
+  ]);
+
   // --- ЗАГРУЗКА И СОХРАНЕНИЕ В FIREBASE ---
   useEffect(() => {
     if (!userId) return;
@@ -337,6 +369,13 @@ export default function App() {
         }
         if (payload.customSlots) setCustomSlots(payload.customSlots);
         if (payload.favoriteSlots) setFavoriteSlots(payload.favoriteSlots);
+        if (
+          payload.slotProviders &&
+          typeof payload.slotProviders === "object" &&
+          !Array.isArray(payload.slotProviders)
+        ) {
+          setSlotProviders(payload.slotProviders);
+        }
         if (payload.currency) setCurrency(payload.currency);
       } catch (error) {
         console.error("Ошибка загрузки данных:", error);
@@ -373,6 +412,7 @@ export default function App() {
               slotGroups,
               customSlots,
               favoriteSlots,
+              slotProviders,
               currency,
             },
           }),
@@ -393,6 +433,7 @@ export default function App() {
     slotGroups,
     customSlots,
     favoriteSlots,
+    slotProviders,
     currency,
     isDataLoaded,
     userId,
@@ -510,9 +551,21 @@ export default function App() {
     );
   };
 
+  const rememberSlotProvider = (slot, provider) => {
+    const normalizedSlot = normalizeSlotName(slot || "");
+    const normalizedProvider = (provider || "").trim();
+    if (!normalizedSlot || !normalizedProvider) return;
+
+    setSlotProviders((prev) => ({
+      ...prev,
+      [normalizedSlot.toLowerCase()]: normalizedProvider,
+    }));
+  };
+
   const closeSlotSearch = () => {
     setIsSlotSearchOpen(false);
     setSlotSearchQuery("");
+    setNewSlotProvider("");
   };
 
   const handleSelectSlot = (slot) => {
@@ -545,6 +598,7 @@ export default function App() {
 
   const handleAddCustomSlot = () => {
     if (!normalizedSlotSearchQuery) return;
+    const provider = newSlotProvider.trim();
 
     setCustomSlots((prev) => {
       const existingSlots = mergeUniqueSlots([...POPULAR_SLOTS, ...prev]);
@@ -556,12 +610,21 @@ export default function App() {
       if (exists) return prev;
       return mergeUniqueSlots([...prev, normalizedSlotSearchQuery]);
     });
-
-    handleSelectSlot(normalizedSlotSearchQuery);
+    if (provider) {
+      rememberSlotProvider(normalizedSlotSearchQuery, provider);
+    }
+    setSlotName(normalizedSlotSearchQuery);
+    setSlotProvider(
+      provider ||
+        providerBySlot.get(normalizedSlotSearchQuery.toLowerCase()) ||
+        "",
+    );
+    closeSlotSearch();
   };
 
   const renderSlotOption = (slot) => {
     const isFavorite = favoriteSlotSet.has(slot.toLowerCase());
+    const provider = providerBySlot.get(slot.toLowerCase()) || "";
 
     return (
       <div
@@ -571,9 +634,12 @@ export default function App() {
         <button
           type="button"
           onClick={() => handleSelectSlot(slot)}
-          className="flex-1 text-left px-4 py-3 text-slate-200"
+          className="flex-1 text-left px-4 py-3"
         >
-          {slot}
+          <div className="text-slate-200">{slot}</div>
+          {provider && (
+            <div className="text-[11px] text-slate-500">{provider}</div>
+          )}
         </button>
         <button
           type="button"
@@ -643,6 +709,10 @@ export default function App() {
       tags: slotTags,
       sessionCurrency: currency,
     };
+
+    if (baseSession.provider) {
+      rememberSlotProvider(baseSession.name, baseSession.provider);
+    }
 
     if (editingSession) {
       setSlotGroups((prev) =>
@@ -1831,14 +1901,37 @@ export default function App() {
             {/* Список слотов */}
             <div className="flex-1 overflow-y-auto p-2 scrollbar-hide space-y-4">
               {normalizedSlotSearchQuery && !hasExactSlotMatch && (
-                <button
-                  type="button"
-                  onClick={handleAddCustomSlot}
-                  className="w-full text-left px-4 py-3 rounded-2xl border border-indigo-500/30 bg-indigo-950/20 hover:bg-indigo-950/30 text-indigo-300 transition-colors flex items-center gap-2"
-                >
-                  <PlusCircle size={18} />
-                  Добавить в мои слоты "{normalizedSlotSearchQuery}"
-                </button>
+                <div className="rounded-2xl border border-indigo-500/30 bg-indigo-950/20 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-indigo-200 text-sm font-semibold">
+                    <PlusCircle size={18} />
+                    Добавить слот "{normalizedSlotSearchQuery}"
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-indigo-200/80">
+                      Провайдер слота
+                    </label>
+                    <input
+                      type="text"
+                      list="provider-options-modal"
+                      value={newSlotProvider}
+                      onChange={(e) => setNewSlotProvider(e.target.value)}
+                      className="w-full bg-slate-950/70 border border-indigo-400/30 rounded-xl px-3 py-2 text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-400"
+                      placeholder="Выберите или введите нового провайдера"
+                    />
+                    <datalist id="provider-options-modal">
+                      {providerOptions.map((provider) => (
+                        <option key={`modal-${provider}`} value={provider} />
+                      ))}
+                    </datalist>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddCustomSlot}
+                    className="w-full rounded-xl bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-100 px-3 py-2 text-sm font-semibold transition-colors"
+                  >
+                    Добавить в мои слоты
+                  </button>
+                </div>
               )}
               {slotSections.some(
                 (section) =>

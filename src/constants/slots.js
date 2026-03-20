@@ -35,4 +35,41 @@ const POPULAR_SLOTS = [
   "Zeus vs Hades",
 ].sort();
 
-export { POPULAR_SLOTS };
+const POPULAR_SLOT_PROVIDER_MAP = {
+  "6 Jockers": "BGaming",
+  "Barnyard Megahays Megaways": "BGaming",
+  "Beware The Deep Megaways": "BGaming",
+  "Book of Dead": "Play'n GO",
+  "Candy Corner": "BGaming",
+  "Dragon King Hot Pots": "BGaming",
+  "Fruit Party": "Pragmatic Play",
+  "Gates of Olympus": "Pragmatic Play",
+  "Gates of Olympus 1000": "Pragmatic Play",
+  "Jammin' Jars": "Push Gaming",
+  "Legacy of Dead": "Play'n GO",
+  "Le Viking": "BGaming",
+  Mental: "Nolimit City",
+  "Razor Returns": "Push Gaming",
+  "Razor Shark": "Push Gaming",
+  "Release the Kraken": "Pragmatic Play",
+  "Release the Kraken Megaways": "Pragmatic Play",
+  "Retro Tapes": "Nolimit City",
+  "San Quentin": "Nolimit City",
+  "Starlight Princess": "Pragmatic Play",
+  "Starlight Princess 1000": "Pragmatic Play",
+  "Sugar Rush": "Pragmatic Play",
+  "Sugar Rush 1000": "Pragmatic Play",
+  "Sweet Bonanza": "Pragmatic Play",
+  "Sweet Bonanza 1000": "Pragmatic Play",
+  "Sweet Rush Bonanza": "BGaming",
+  "The Dog House": "Pragmatic Play",
+  "The Dog House Megaways": "Pragmatic Play",
+  "Tome of Madness": "Play'n GO",
+  "Trees of Treasure": "BGaming",
+  "Wanted Dead or a Wild": "Hacksaw Gaming",
+  Wildies: "BGaming",
+  "Yeti Quest": "BGaming",
+  "Zeus vs Hades": "Pragmatic Play",
+};
+
+export { POPULAR_SLOTS, POPULAR_SLOT_PROVIDER_MAP };
