@@ -1633,8 +1633,6 @@ export default function App() {
       setIsSlotSearchOpen={setIsSlotSearchOpen}
       slotName={slotName}
       slotProvider={slotProvider}
-      setSlotProvider={setSlotProvider}
-      providerOptions={providerOptions}
       slotBet={slotBet}
       setSlotBet={setSlotBet}
       slotSpins={slotSpins}

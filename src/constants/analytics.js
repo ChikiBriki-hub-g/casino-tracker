@@ -1,5 +1,5 @@
 const SESSION_TAGS = ["buy bonus", "base game", "test", "stream", "high bet"];
-const MAX_RECENT_SLOTS = 8;
+const MAX_RECENT_SLOTS = 5;
 const MAX_RECENT_SESSIONS = 6;
 const PERIOD_FILTERS = [
   { id: "today", label: "Сегодня", days: 0 },
