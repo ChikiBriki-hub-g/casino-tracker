@@ -1,14 +1,10 @@
-import React from "react";
+﻿import React from "react";
 import AnalyticsAdvanced from "./AnalyticsAdvanced";
 import AnalyticsOverview from "./AnalyticsOverview";
 
 export default function AnalyticsTab(props) {
   const {
     PERIOD_FILTERS,
-    analyticsActionState,
-    handleExportCsv,
-    handleCopyReport,
-    handleDownloadReport,
     analyticsPeriod,
     setAnalyticsPeriod,
     analyticsProvider,
@@ -31,10 +27,11 @@ export default function AnalyticsTab(props) {
     getMetricToneClass,
     balanceSeries,
     financeOverview,
-    plSeries,
     analyticsInsights,
     slotAnalytics,
     analyticsReportText,
+    handleCopyReport,
+    analyticsActionState,
   } = props;
 
   return (
@@ -42,10 +39,6 @@ export default function AnalyticsTab(props) {
       <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg">
         <AnalyticsOverview
           periodFilters={PERIOD_FILTERS}
-          analyticsActionState={analyticsActionState}
-          handleExportCsv={handleExportCsv}
-          handleCopyReport={handleCopyReport}
-          handleDownloadReport={handleDownloadReport}
           analyticsPeriod={analyticsPeriod}
           setAnalyticsPeriod={setAnalyticsPeriod}
           analyticsProvider={analyticsProvider}
@@ -68,8 +61,19 @@ export default function AnalyticsTab(props) {
           getMetricToneClass={getMetricToneClass}
           balanceSeries={balanceSeries}
           financeOverview={financeOverview}
-          plSeries={plSeries}
         />
+
+        <div className="mb-4 flex items-center justify-end">
+          <button
+            type="button"
+            onClick={handleCopyReport}
+            className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
+          >
+            {analyticsActionState === "report"
+              ? "Отчёт скопирован"
+              : "Скопировать отчёт"}
+          </button>
+        </div>
 
         <AnalyticsAdvanced
           analyticsInsights={analyticsInsights}

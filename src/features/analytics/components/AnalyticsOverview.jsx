@@ -1,12 +1,8 @@
-import React from "react";
+﻿import React from "react";
 import LineChart from "../../../components/charts/LineChart";
 
 export default function AnalyticsOverview({
   periodFilters,
-  analyticsActionState,
-  handleExportCsv,
-  handleCopyReport,
-  handleDownloadReport,
   analyticsPeriod,
   setAnalyticsPeriod,
   analyticsProvider,
@@ -53,36 +49,6 @@ export default function AnalyticsOverview({
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-end gap-2">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleExportCsv}
-            className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-          >
-            {analyticsActionState === "csv" ? "CSV готов" : "Экспорт CSV"}
-          </button>
-          <button
-            type="button"
-            onClick={handleCopyReport}
-            className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-[11px] font-semibold text-indigo-200 hover:bg-indigo-600/30"
-          >
-            {analyticsActionState === "report"
-              ? "Отчет скопирован"
-              : "Текстовый отчет"}
-          </button>
-          <button
-            type="button"
-            onClick={handleDownloadReport}
-            className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-          >
-            {analyticsActionState === "report-file"
-              ? "TXT готов"
-              : "Скачать TXT"}
-          </button>
-        </div>
-      </div>
-
       <div className="flex flex-wrap gap-2 mb-4">
         {periodFilters.map((period) => (
           <button
