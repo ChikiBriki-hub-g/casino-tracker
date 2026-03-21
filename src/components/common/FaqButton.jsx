@@ -94,8 +94,14 @@ export default function FaqButton() {
       </button>
 
       {isOpen && (
-        <div className="faq-overlay fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="faq-modal surface-card flex h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl border-t sm:h-auto sm:max-h-[720px] sm:rounded-2xl sm:border">
+        <div
+          className="faq-overlay fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={() => setIsOpen(false)}
+        >
+          <div
+            className="faq-modal surface-card flex h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl border-t sm:h-auto sm:max-h-[720px] sm:rounded-2xl sm:border"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-slate-800 px-4 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-slate-100">FAQ</h2>

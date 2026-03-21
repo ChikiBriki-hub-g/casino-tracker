@@ -14,8 +14,14 @@ export default function FinanceSection({ finance, currency }) {
       />
 
       {finance.isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+          onClick={finance.closeModal}
+        >
+          <div
+            className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div
               className={`p-4 text-center font-bold text-lg ${
                 finance.transactionType === "deposit"
