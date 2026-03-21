@@ -91,14 +91,14 @@ export default function SlotGroupsPanel({
                       <span className="rounded-full border border-slate-700 bg-slate-900/60 px-2 py-1 text-slate-300">
                         {groupItems.length} записей
                       </span>
-                      <span className="rounded-full border border-slate-700 bg-slate-900/60 px-2 py-1 text-slate-300">
+                      <span className="whitespace-nowrap rounded-full border border-slate-700 bg-slate-900/60 px-2 py-1 text-slate-300">
                         {totalSpins} спинов
                       </span>
-                      <span className="rounded-full border border-slate-700 bg-slate-900/60 px-2 py-1 text-slate-300">
+                      <span className="whitespace-nowrap rounded-full border border-slate-700 bg-slate-900/60 px-2 py-1 text-slate-300">
                         {totalBonuses} бонусов
                       </span>
                       {latestBalance && (
-                        <span className="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2 py-1 text-indigo-200">
+                        <span className="whitespace-nowrap rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2 py-1 text-indigo-200">
                           Баланс {latestBalance}
                           {currency}
                         </span>
@@ -110,7 +110,7 @@ export default function SlotGroupsPanel({
                     {group.items.length > 0 && (
                       <button
                         onClick={() => copyToClipboard(group.id)}
-                        className="flex items-center gap-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
                       >
                         {copiedGroupId === group.id ? (
                           <CheckCircle2
@@ -216,7 +216,7 @@ export default function SlotGroupsPanel({
                                   Баланс
                                 </p>
                                 <p
-                                  className={`mt-1 font-bold text-sm flex items-center justify-end gap-1 ${balanceColorClass}`}
+                                  className={`mt-1 flex items-center justify-end gap-1 whitespace-nowrap text-sm font-bold ${balanceColorClass}`}
                                 >
                                   {TrendIcon && <TrendIcon size={14} />}
                                   {session.balance}
@@ -243,7 +243,7 @@ export default function SlotGroupsPanel({
                                 {(session.tags || []).map((tag) => (
                                   <span
                                     key={tag}
-                                    className="rounded-full bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 text-indigo-200"
+                                    className="whitespace-nowrap rounded-full bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 text-indigo-200"
                                   >
                                     {tag}
                                   </span>
@@ -256,7 +256,7 @@ export default function SlotGroupsPanel({
                                 <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
                                   Ставка
                                 </span>
-                                <span className="font-semibold text-slate-300 text-xs">
+                                <span className="whitespace-nowrap font-semibold text-slate-300 text-xs">
                                   {session.bet}
                                   {currentCurrency}
                                 </span>
@@ -293,7 +293,7 @@ export default function SlotGroupsPanel({
                                           key={winIndex}
                                           className="flex items-center bg-indigo-950/30 border border-indigo-500/30 rounded-md overflow-hidden"
                                         >
-                                          <span className="px-2 py-0.5 text-xs font-medium text-indigo-100">
+                                          <span className="whitespace-nowrap px-2 py-0.5 text-xs font-medium text-indigo-100">
                                             {win}
                                             {currentCurrency}
                                           </span>

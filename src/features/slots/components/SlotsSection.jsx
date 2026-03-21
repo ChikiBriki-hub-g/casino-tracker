@@ -3,10 +3,16 @@ import { MAX_RECENT_SESSIONS, SESSION_TAGS } from "../constants";
 import SlotSearchModal from "./SlotSearchModal";
 import SlotsTab from "./SlotsTab";
 
-export default function SlotsSection({ slots, analytics, currency }) {
+export default function SlotsSection({
+  slots,
+  analytics,
+  currency,
+  hasManualDeposits,
+}) {
   return (
     <>
       <SlotsTab
+        hasManualDeposits={hasManualDeposits}
         editingSession={slots.editingSession}
         handleCreateNewGroup={slots.handleCreateNewGroup}
         slotGroups={slots.slotGroups}

@@ -456,6 +456,7 @@ export default function App() {
             slots={slots}
             analytics={analytics}
             currency={currency}
+            hasManualDeposits={finance.hasManualDeposits}
           />
         )}
         {activeTab === "analytics" && (

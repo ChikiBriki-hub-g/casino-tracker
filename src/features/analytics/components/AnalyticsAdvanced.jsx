@@ -186,7 +186,9 @@ export default function AnalyticsAdvanced({
                     </p>
                   </div>
                   <div className="text-right text-xs">
-                    <p className={getMetricToneClass(provider.totalResult)}>
+                    <p
+                      className={`whitespace-nowrap ${getMetricToneClass(provider.totalResult)}`}
+                    >
                       {formatNumber(provider.totalResult)}
                     </p>
                     <p className="text-slate-400">

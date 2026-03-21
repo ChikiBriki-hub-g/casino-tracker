@@ -12,6 +12,7 @@ import EmptyState from "../../../components/common/EmptyState";
 
 export default function FinanceTab({
   stats,
+  hasManualDeposits,
   formatMoney,
   openModal,
   transactions,
@@ -28,6 +29,13 @@ export default function FinanceTab({
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+      {!hasManualDeposits && (
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          Сначала укажите депозит. После этого результаты из слотов начнут
+          учитываться в общем банке.
+        </div>
+      )}
+
       <div
         className={`relative overflow-hidden rounded-2xl p-6 shadow-lg ${stats.isProfitable ? "bg-emerald-900/20 border border-emerald-500/30" : "bg-rose-900/20 border border-rose-500/30"}`}
       >
@@ -42,7 +50,7 @@ export default function FinanceTab({
           Чистая прибыль (Профит)
         </p>
         <h2
-          className={`text-4xl font-bold tracking-tight ${stats.isProfitable ? "text-emerald-400" : "text-rose-400"}`}
+          className={`whitespace-nowrap text-4xl font-bold tracking-tight ${stats.isProfitable ? "text-emerald-400" : "text-rose-400"}`}
         >
           {stats.netProfit > 0 ? "+" : ""}
           {formatMoney(stats.netProfit)}
@@ -66,7 +74,9 @@ export default function FinanceTab({
             <span className="text-sm font-medium">Депозиты</span>
           </div>
           <p className="text-xl font-semibold text-slate-200">
-            {formatMoney(stats.totalDeposits)}
+            <span className="whitespace-nowrap">
+              {formatMoney(stats.totalDeposits)}
+            </span>
           </p>
         </div>
         <div className="summary-card">
@@ -75,7 +85,9 @@ export default function FinanceTab({
             <span className="text-sm font-medium">Выводы</span>
           </div>
           <p className="text-xl font-semibold text-slate-200">
-            {formatMoney(stats.totalWithdrawals)}
+            <span className="whitespace-nowrap">
+              {formatMoney(stats.totalWithdrawals)}
+            </span>
           </p>
         </div>
         <div className="summary-card col-span-2">
@@ -85,12 +97,12 @@ export default function FinanceTab({
           </div>
           <div className="flex items-end justify-between gap-3">
             <p
-              className={`text-xl font-semibold ${stats.totalSlotResult >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+              className={`whitespace-nowrap text-xl font-semibold ${stats.totalSlotResult >= 0 ? "text-emerald-400" : "text-rose-400"}`}
             >
               {stats.totalSlotResult > 0 ? "+" : ""}
               {formatMoney(stats.totalSlotResult)}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="whitespace-nowrap text-xs text-slate-500">
               +{formatMoney(stats.totalSlotWins)} / -
               {formatMoney(stats.totalSlotLosses)}
             </p>
@@ -121,13 +133,13 @@ export default function FinanceTab({
             <History size={20} className="text-slate-400" />
             <h3 className="section-title">Операции</h3>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
             {filters.map((filter) => (
               <button
                 key={filter.id}
                 type="button"
                 onClick={() => setTransactionFilter(filter.id)}
-                className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors ${
+                className={`whitespace-nowrap rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors ${
                   transactionFilter === filter.id
                     ? "border-indigo-500/40 bg-indigo-500/20 text-indigo-200"
                     : "border-slate-700 bg-slate-800 text-slate-400 hover:text-slate-200"
@@ -186,9 +198,9 @@ export default function FinanceTab({
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="ml-3 flex shrink-0 items-center gap-3">
                   <span
-                    className={`font-bold ${
+                    className={`whitespace-nowrap text-right font-bold ${
                       t.netAmount >= 0 ? "text-emerald-400" : "text-rose-400"
                     }`}
                   >
@@ -203,7 +215,7 @@ export default function FinanceTab({
                       <Trash2 size={16} />
                     </button>
                   ) : (
-                    <span className="rounded-full border border-slate-700 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    <span className="whitespace-nowrap rounded-full border border-slate-700 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                       Слоты
                     </span>
                   )}

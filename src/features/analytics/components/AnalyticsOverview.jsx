@@ -134,7 +134,7 @@ export default function AnalyticsOverview({
             Итог за период
           </p>
           <p
-            className={`mt-2 text-2xl font-semibold ${getMetricToneClass(
+            className={`mt-2 whitespace-nowrap text-2xl font-semibold ${getMetricToneClass(
               analyticsSummary.totalResult,
             )}`}
           >
@@ -192,7 +192,7 @@ export default function AnalyticsOverview({
           <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
             Сессии
           </p>
-          <p className="text-lg font-semibold text-slate-100">
+          <p className="whitespace-nowrap text-lg font-semibold text-slate-100">
             {analyticsSummary.totalSessions}
           </p>
           <p className="mt-1 text-xs text-slate-500">За период</p>
@@ -201,7 +201,7 @@ export default function AnalyticsOverview({
           <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
             Спины
           </p>
-          <p className="text-lg font-semibold text-slate-100">
+          <p className="whitespace-nowrap text-lg font-semibold text-slate-100">
             {formatNumber(analyticsSummary.totalSpins)}
           </p>
           <p className="mt-1 text-xs text-slate-500">За период</p>
@@ -210,7 +210,7 @@ export default function AnalyticsOverview({
           <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
             Средняя ставка
           </p>
-          <p className="text-lg font-semibold text-slate-200">
+          <p className="whitespace-nowrap text-lg font-semibold text-slate-200">
             {analyticsCurrency === "all"
               ? formatNumber(analyticsSummary.avgBet)
               : formatMoneyWithCurrency(
@@ -225,7 +225,7 @@ export default function AnalyticsOverview({
             Последний баланс
           </p>
           <p
-            className={`text-lg font-semibold ${getMetricToneClass(
+            className={`whitespace-nowrap text-lg font-semibold ${getMetricToneClass(
               analyticsSummary.lastBalance,
             )}`}
           >
@@ -247,7 +247,7 @@ export default function AnalyticsOverview({
               Влияние слотов на общий банк
             </h4>
             <span
-              className={`text-xs font-semibold ${
+              className={`whitespace-nowrap text-xs font-semibold ${
                 financeOverview.netResult >= 0
                   ? "text-emerald-400"
                   : "text-rose-400"
@@ -266,7 +266,7 @@ export default function AnalyticsOverview({
                 Слоты
               </p>
               <p
-                className={`mt-2 text-lg font-semibold ${
+                className={`mt-2 whitespace-nowrap text-lg font-semibold ${
                   financeOverview.slotResult >= 0
                     ? "text-emerald-400"
                     : "text-rose-400"
@@ -283,7 +283,7 @@ export default function AnalyticsOverview({
               <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 Депозиты
               </p>
-              <p className="mt-2 text-lg font-semibold text-slate-100">
+              <p className="mt-2 whitespace-nowrap text-lg font-semibold text-slate-100">
                 {formatMoneyWithCurrency(
                   financeOverview.deposits,
                   financeOverview.currency,
@@ -294,7 +294,7 @@ export default function AnalyticsOverview({
               <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 Выводы
               </p>
-              <p className="mt-2 text-lg font-semibold text-slate-100">
+              <p className="mt-2 whitespace-nowrap text-lg font-semibold text-slate-100">
                 {formatMoneyWithCurrency(
                   financeOverview.withdrawals,
                   financeOverview.currency,
@@ -306,7 +306,7 @@ export default function AnalyticsOverview({
                 Итог банка
               </p>
               <p
-                className={`mt-2 text-lg font-semibold ${
+                className={`mt-2 whitespace-nowrap text-lg font-semibold ${
                   financeOverview.netResult >= 0
                     ? "text-emerald-400"
                     : "text-rose-400"

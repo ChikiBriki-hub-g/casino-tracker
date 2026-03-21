@@ -45,7 +45,7 @@ export default function RecentSessionsPanel({
                       {session.groupName} · {formatDate(session.date)}
                     </p>
                   </div>
-                  <div className="text-right text-xs text-slate-400">
+                  <div className="whitespace-nowrap text-right text-xs text-slate-400">
                     ставка {session.bet}
                     {session.sessionCurrency || currency}
                   </div>
@@ -65,14 +65,14 @@ export default function RecentSessionsPanel({
                 {(session.provider || (session.tags || []).length > 0) && (
                   <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
                     {session.provider && (
-                      <span className="rounded-full border border-slate-700 bg-slate-800 px-2 py-1 text-slate-200">
+                      <span className="whitespace-nowrap rounded-full border border-slate-700 bg-slate-800 px-2 py-1 text-slate-200">
                         {session.provider}
                       </span>
                     )}
                     {(session.tags || []).map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-indigo-500/10 px-2 py-1 text-indigo-200"
+                        className="whitespace-nowrap rounded-full bg-indigo-500/10 px-2 py-1 text-indigo-200"
                       >
                         {tag}
                       </span>

@@ -13,6 +13,10 @@ const useFinance = ({ currency, slotGroups = [] }) => {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [transactionFilter, setTransactionFilter] = useState("all");
+  const hasManualDeposits = useMemo(
+    () => transactions.some((transaction) => transaction.type === "deposit"),
+    [transactions],
+  );
 
   const slotTransactions = useMemo(() => {
     return slotGroups
@@ -62,10 +66,14 @@ const useFinance = ({ currency, slotGroups = [] }) => {
       sessionCurrency: currency,
     }));
 
-    return [...slotTransactions, ...manualTransactions].sort(
+    const combinedTransactions = hasManualDeposits
+      ? [...slotTransactions, ...manualTransactions]
+      : manualTransactions;
+
+    return combinedTransactions.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
-  }, [currency, slotTransactions, transactions]);
+  }, [currency, hasManualDeposits, slotTransactions, transactions]);
 
   const visibleTransactions = useMemo(() => {
     if (transactionFilter === "manual") {
@@ -164,6 +172,7 @@ const useFinance = ({ currency, slotGroups = [] }) => {
     slotTransactions,
     setTransactions,
     stats,
+    hasManualDeposits,
     transactionFilter,
     setTransactionFilter,
     isModalOpen,

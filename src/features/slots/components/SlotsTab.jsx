@@ -5,6 +5,7 @@ import SlotGroupsPanel from "./SlotGroupsPanel";
 
 export default function SlotsTab(props) {
   const {
+    hasManualDeposits,
     editingSession,
     handleCreateNewGroup,
     slotGroups,
@@ -54,6 +55,7 @@ export default function SlotsTab(props) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <SlotEntryForm
+        hasManualDeposits={hasManualDeposits}
         editingSession={editingSession}
         handleCreateNewGroup={handleCreateNewGroup}
         handleAddSlotSession={handleAddSlotSession}

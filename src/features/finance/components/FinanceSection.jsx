@@ -6,6 +6,7 @@ export default function FinanceSection({ finance, currency }) {
     <>
       <FinanceTab
         stats={finance.stats}
+        hasManualDeposits={finance.hasManualDeposits}
         formatMoney={finance.formatMoney}
         openModal={finance.openModal}
         transactions={finance.visibleTransactions}

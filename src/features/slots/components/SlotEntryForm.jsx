@@ -3,6 +3,7 @@ import { Layers, PlusCircle, Search } from "lucide-react";
 import { formatInputWithCommas } from "../../../utils/casino";
 
 export default function SlotEntryForm({
+  hasManualDeposits,
   editingSession,
   handleCreateNewGroup,
   handleAddSlotSession,
@@ -32,7 +33,8 @@ export default function SlotEntryForm({
 }) {
   const quickSpinOptions = ["50", "100", "200", "300", "500"];
   const quickBonusOptions = [0, 1, 2, 3, 5];
-  const isFormIncomplete = !slotName || !slotBet || !slotSpins || !slotBalance;
+  const isFormIncomplete =
+    !hasManualDeposits || !slotName || !slotBet || !slotSpins || !slotBalance;
 
   return (
     <>
@@ -46,7 +48,9 @@ export default function SlotEntryForm({
           </div>
         </div>
         <button
+          type="button"
           onClick={handleCreateNewGroup}
+          disabled={!hasManualDeposits}
           className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-600/20 px-3 py-2.5 text-sm font-bold text-indigo-300 transition-colors shadow-sm shadow-indigo-900/20 hover:bg-indigo-600/30 sm:w-auto sm:justify-start sm:rounded-lg sm:px-3 sm:py-1.5 sm:text-xs"
         >
           <PlusCircle size={14} />
@@ -55,275 +59,285 @@ export default function SlotEntryForm({
       </div>
 
       <div className="surface-card relative p-5">
-        <form onSubmit={handleAddSlotSession} className="space-y-4">
-          {editingSession && (
-            <div className="flex flex-col gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-3 text-xs text-amber-200 sm:flex-row sm:items-center sm:justify-between">
-              <span className="leading-5">
-                Вы редактируете запись. Изменения сохранятся в текущей сессии.
-              </span>
-              <button
-                type="button"
-                onClick={resetSlotForm}
-                className="rounded-lg bg-amber-500/20 px-3 py-2 text-[11px] font-semibold text-amber-100 hover:bg-amber-500/30"
-              >
-                Отменить
-              </button>
-            </div>
-          )}
-
-          {lastSessionInActiveGroup && (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3">
-              <div className="flex flex-col gap-1 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                <span className="leading-5">
-                  Последняя запись:{" "}
-                  <span className="font-semibold text-slate-200">
-                    {lastSessionInActiveGroup.name}
-                  </span>
-                </span>
-                <span className="text-[11px]">
-                  ставка {lastSessionInActiveGroup.bet}
-                  {lastSessionInActiveGroup.sessionCurrency || currency}
-                </span>
-              </div>
-              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                <button
-                  type="button"
-                  onClick={handleRepeatLastSlot}
-                  className="rounded-xl bg-slate-800 px-3 py-2 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-                >
-                  Повторить слот
-                </button>
-                <button
-                  type="button"
-                  onClick={handleUseLastBet}
-                  className="rounded-xl bg-slate-800 px-3 py-2 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
-                >
-                  Повторить ставку
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDuplicateLastSession}
-                  className="rounded-xl bg-indigo-600/20 px-3 py-2 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-600/30"
-                >
-                  Дублировать сессию
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-              Слот{" "}
-              {slotProvider && (
-                <span className="normal-case tracking-normal text-[11px] text-slate-500 font-medium ml-1">
-                  {slotProvider}
-                </span>
-              )}
-            </label>
-            <button
-              type="button"
-              onClick={() => setIsSlotSearchOpen(true)}
-              className="flex w-full items-center justify-between rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-left text-slate-100 transition-colors hover:border-indigo-500"
-            >
-              <div className="min-w-0">
-                <span
-                  className={slotName ? "text-slate-100" : "text-slate-500"}
-                >
-                  {slotName || "Выберите слот"}
-                </span>
-                {slotName && slotProvider && (
-                  <p className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">
-                    {slotProvider}
-                  </p>
-                )}
-              </div>
-              <Search size={18} className="text-slate-500" />
-            </button>
+        {!hasManualDeposits && (
+          <div className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-100">
+            Сначала укажите депозит в финансах.
           </div>
+        )}
+        <form onSubmit={handleAddSlotSession} className="space-y-4">
+          <fieldset
+            disabled={!hasManualDeposits}
+            className={!hasManualDeposits ? "opacity-50" : undefined}
+          >
+            {editingSession && (
+              <div className="flex flex-col gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-3 text-xs text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+                <span className="leading-5">
+                  Вы редактируете запись. Изменения сохранятся в текущей сессии.
+                </span>
+                <button
+                  type="button"
+                  onClick={resetSlotForm}
+                  className="rounded-lg bg-amber-500/20 px-3 py-2 text-[11px] font-semibold text-amber-100 hover:bg-amber-500/30"
+                >
+                  Отменить
+                </button>
+              </div>
+            )}
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {lastSessionInActiveGroup && (
+              <div className="rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3">
+                <div className="flex flex-col gap-1 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                  <span className="leading-5">
+                    Последняя запись:{" "}
+                    <span className="font-semibold text-slate-200">
+                      {lastSessionInActiveGroup.name}
+                    </span>
+                  </span>
+                  <span className="text-[11px]">
+                    ставка {lastSessionInActiveGroup.bet}
+                    {lastSessionInActiveGroup.sessionCurrency || currency}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <button
+                    type="button"
+                    onClick={handleRepeatLastSlot}
+                    className="rounded-xl bg-slate-800 px-3 py-2 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
+                  >
+                    Повторить слот
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleUseLastBet}
+                    className="rounded-xl bg-slate-800 px-3 py-2 text-[11px] font-semibold text-slate-200 hover:bg-slate-700"
+                  >
+                    Повторить ставку
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDuplicateLastSession}
+                    className="rounded-xl bg-indigo-600/20 px-3 py-2 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-600/30"
+                  >
+                    Дублировать сессию
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-                Размер ставки
+                Слот{" "}
+                {slotProvider && (
+                  <span className="normal-case tracking-normal text-[11px] text-slate-500 font-medium ml-1">
+                    {slotProvider}
+                  </span>
+                )}
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsSlotSearchOpen(true)}
+                className="flex w-full items-center justify-between rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-left text-slate-100 transition-colors hover:border-indigo-500"
+              >
+                <div className="min-w-0">
+                  <span
+                    className={slotName ? "text-slate-100" : "text-slate-500"}
+                  >
+                    {slotName || "Выберите слот"}
+                  </span>
+                  {slotName && slotProvider && (
+                    <p className="text-[11px] text-slate-500 truncate leading-tight mt-0.5">
+                      {slotProvider}
+                    </p>
+                  )}
+                </div>
+                <Search size={18} className="text-slate-500" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                  Размер ставки
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  value={slotBet}
+                  onChange={(event) =>
+                    setSlotBet(formatInputWithCommas(event.target.value))
+                  }
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  placeholder="Например, 300"
+                />
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {["100", "200", "300", "500", "1000"].map((betPreset) => (
+                    <button
+                      key={betPreset}
+                      type="button"
+                      onClick={() => setSlotBet(betPreset)}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                        slotBet === betPreset
+                          ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
+                          : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
+                      }`}
+                    >
+                      {betPreset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                  Количество спинов
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  required
+                  value={slotSpins}
+                  onChange={(event) => setSlotSpins(event.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  placeholder="Например, 100"
+                />
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {quickSpinOptions.map((spinPreset) => (
+                    <button
+                      key={spinPreset}
+                      type="button"
+                      onClick={() => setSlotSpins(spinPreset)}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                        slotSpins === spinPreset
+                          ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
+                          : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
+                      }`}
+                    >
+                      {spinPreset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 items-start sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                  Количество бонусных игр
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  value={slotBonuses}
+                  onChange={handleBonusesChange}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  placeholder="Например, 3"
+                />
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {quickBonusOptions.map((bonusPreset) => (
+                    <button
+                      key={bonusPreset}
+                      type="button"
+                      onClick={() => setBonusCount(bonusPreset)}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                        slotBonuses === String(bonusPreset)
+                          ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
+                          : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
+                      }`}
+                    >
+                      {bonusPreset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {slotBonusWins.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                    Выигрыши по бонусам
+                  </label>
+                  {slotBonusWins.map((win, index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      inputMode="numeric"
+                      value={win}
+                      onChange={(event) =>
+                        handleBonusWinChange(index, event.target.value)
+                      }
+                      className="w-full bg-slate-950 border border-indigo-900/50 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 bg-indigo-950/20"
+                      placeholder={
+                        slotBonusWins.length > 1
+                          ? `Бонус ${index + 1}`
+                          : "Сумма выигрыша"
+                      }
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                Теги сессии
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {sessionTags.map((tag) => {
+                  const active = slotTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() =>
+                        setSlotTags((prev) =>
+                          prev.includes(tag)
+                            ? prev.filter((item) => item !== tag)
+                            : [...prev, tag],
+                        )
+                      }
+                      className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
+                        active
+                          ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
+                          : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+                Итоговый баланс
               </label>
               <input
                 type="text"
                 inputMode="numeric"
                 required
-                value={slotBet}
+                value={slotBalance}
                 onChange={(event) =>
-                  setSlotBet(formatInputWithCommas(event.target.value))
+                  setSlotBalance(formatInputWithCommas(event.target.value))
                 }
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                placeholder="Например, 300"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                placeholder="Например, 7 980"
               />
-              <div className="mt-2 flex flex-wrap gap-2">
-                {["100", "200", "300", "500", "1000"].map((betPreset) => (
-                  <button
-                    key={betPreset}
-                    type="button"
-                    onClick={() => setSlotBet(betPreset)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      slotBet === betPreset
-                        ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
-                        : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-                    }`}
-                  >
-                    {betPreset}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-                Количество спинов
-              </label>
-              <input
-                type="number"
-                inputMode="numeric"
-                required
-                value={slotSpins}
-                onChange={(event) => setSlotSpins(event.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                placeholder="Например, 100"
-              />
-              <div className="mt-2 flex flex-wrap gap-2">
-                {quickSpinOptions.map((spinPreset) => (
-                  <button
-                    key={spinPreset}
-                    type="button"
-                    onClick={() => setSlotSpins(spinPreset)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      slotSpins === spinPreset
-                        ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
-                        : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-                    }`}
-                  >
-                    {spinPreset}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 items-start sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-                Количество бонусных игр
-              </label>
-              <input
-                type="number"
-                inputMode="numeric"
-                value={slotBonuses}
-                onChange={handleBonusesChange}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                placeholder="Например, 3"
-              />
-              <div className="mt-2 flex flex-wrap gap-2">
-                {quickBonusOptions.map((bonusPreset) => (
-                  <button
-                    key={bonusPreset}
-                    type="button"
-                    onClick={() => setBonusCount(bonusPreset)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      slotBonuses === String(bonusPreset)
-                        ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
-                        : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-                    }`}
-                  >
-                    {bonusPreset}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {slotBonusWins.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-                  Выигрыши по бонусам
-                </label>
-                {slotBonusWins.map((win, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    value={win}
-                    onChange={(event) =>
-                      handleBonusWinChange(index, event.target.value)
-                    }
-                    className="w-full bg-slate-950 border border-indigo-900/50 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 bg-indigo-950/20"
-                    placeholder={
-                      slotBonusWins.length > 1
-                        ? `Бонус ${index + 1}`
-                        : "Сумма выигрыша"
-                    }
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3">
-            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-              Теги сессии
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {sessionTags.map((tag) => {
-                const active = slotTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() =>
-                      setSlotTags((prev) =>
-                        prev.includes(tag)
-                          ? prev.filter((item) => item !== tag)
-                          : [...prev, tag],
-                      )
-                    }
-                    className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
-                      active
-                        ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
-                        : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+            <div className="sticky bottom-20 z-10 -mx-1 rounded-2xl border border-slate-800 bg-slate-950/90 p-3 shadow-2xl shadow-slate-950/40 backdrop-blur-md">
+              <button
+                type="submit"
+                disabled={isFormIncomplete}
+                className={`w-full rounded-xl py-4 text-base font-semibold transition-colors shadow-lg ${
+                  isFormIncomplete
+                    ? "cursor-not-allowed bg-slate-800 text-slate-500 shadow-none"
+                    : "bg-indigo-600 text-white shadow-indigo-900/20 hover:bg-indigo-700 active:bg-indigo-800"
+                }`}
+              >
+                {editingSession ? "Сохранить изменения" : "Добавить запись"}
+              </button>
             </div>
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
-              Итоговый баланс
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              required
-              value={slotBalance}
-              onChange={(event) =>
-                setSlotBalance(formatInputWithCommas(event.target.value))
-              }
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-              placeholder="Например, 7 980"
-            />
-          </div>
-
-          <div className="sticky bottom-20 z-10 -mx-1 rounded-2xl border border-slate-800 bg-slate-950/90 p-3 shadow-2xl shadow-slate-950/40 backdrop-blur-md">
-            <button
-              type="submit"
-              disabled={isFormIncomplete}
-              className={`w-full rounded-xl py-4 text-base font-semibold transition-colors shadow-lg ${
-                isFormIncomplete
-                  ? "cursor-not-allowed bg-slate-800 text-slate-500 shadow-none"
-                  : "bg-indigo-600 text-white shadow-indigo-900/20 hover:bg-indigo-700 active:bg-indigo-800"
-              }`}
-            >
-              {editingSession ? "Сохранить изменения" : "Добавить запись"}
-            </button>
-          </div>
+          </fieldset>
         </form>
       </div>
     </>
