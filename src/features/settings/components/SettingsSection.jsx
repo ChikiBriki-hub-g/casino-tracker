@@ -1,24 +1,11 @@
 import React, { useRef, useState } from "react";
 import {
-  Cloud,
   Download,
   Upload,
   RefreshCcw,
   ShieldAlert,
   SlidersHorizontal,
 } from "lucide-react";
-
-function StatCard({ label, value, hint }) {
-  return (
-    <div className="summary-card">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-        {label}
-      </p>
-      <p className="mt-2 text-lg font-semibold text-slate-100">{value}</p>
-      {hint && <p className="mt-1 text-[11px] text-slate-500">{hint}</p>}
-    </div>
-  );
-}
 
 export default function SettingsSection({
   currency,
@@ -28,13 +15,6 @@ export default function SettingsSection({
   setTheme,
   keepQuickContext,
   setKeepQuickContext,
-  saveStatus,
-  financeCount,
-  sessionGroupCount,
-  slotRecordCount,
-  customSlotCount,
-  favoriteSlotCount,
-  providerCount,
   handleExportData,
   handleImportData,
   handleResetAllData,
@@ -125,38 +105,6 @@ export default function SettingsSection({
               </button>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg">
-        <div className="flex items-center gap-2">
-          <Cloud size={18} className="text-indigo-400" />
-          <h3 className="text-base font-semibold text-slate-100">Данные</h3>
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <StatCard label="Операции" value={financeCount} hint="Финансы" />
-          <StatCard
-            label="Сессии"
-            value={sessionGroupCount}
-            hint={`${slotRecordCount} записей`}
-          />
-          <StatCard
-            label="Избранные слоты"
-            value={favoriteSlotCount}
-            hint={`${customSlotCount} своих`}
-          />
-          <StatCard
-            label="Провайдеры"
-            value={providerCount}
-            hint={
-              saveStatus === "saved"
-                ? "Изменения сохранены в облако"
-                : saveStatus === "saving"
-                  ? "Идёт сохранение"
-                  : "Есть проблема с сохранением"
-            }
-          />
         </div>
       </section>
 

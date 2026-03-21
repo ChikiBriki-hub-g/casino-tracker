@@ -518,13 +518,6 @@ export default function App() {
             setTheme={setTheme}
             keepQuickContext={keepQuickContext}
             setKeepQuickContext={setKeepQuickContext}
-            saveStatus={saveStatus}
-            financeCount={totalFinanceOperations}
-            sessionGroupCount={slotGroups.length}
-            slotRecordCount={totalSlotRecords}
-            customSlotCount={customSlots.length}
-            favoriteSlotCount={favoriteSlots.length}
-            providerCount={providerOptions.length}
             handleExportData={handleExportData}
             handleImportData={handleImportData}
             handleResetAllData={handleResetAllData}
