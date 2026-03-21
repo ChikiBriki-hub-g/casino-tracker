@@ -16,9 +16,6 @@ export default function AnalyticsAdvanced({
         <span className="text-sm font-semibold text-slate-200">
           Продвинутая аналитика
         </span>
-        <span className="text-xs text-slate-500">
-          Больше деталей, если хотите разобраться глубже
-        </span>
       </summary>
 
       <div className="px-4 pb-4 space-y-4">
@@ -26,9 +23,6 @@ export default function AnalyticsAdvanced({
           <h4 className="text-sm font-semibold text-slate-200 mb-1">
             Что видно по игре
           </h4>
-          <p className="text-xs text-slate-500 mb-3">
-            Короткие выводы на основе выбранного периода.
-          </p>
           <div className="space-y-2">
             {analyticsInsights.map((insight, index) => (
               <div
@@ -45,9 +39,6 @@ export default function AnalyticsAdvanced({
           <h4 className="text-sm font-semibold text-slate-200 mb-1">
             По сравнению с прошлым периодом
           </h4>
-          <p className="text-xs text-slate-500 mb-3">
-            Помогает понять, игра идёт лучше или хуже, чем раньше.
-          </p>
           {periodComparison ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div className="surface-card rounded-lg p-3">
@@ -111,9 +102,7 @@ export default function AnalyticsAdvanced({
               </div>
             </div>
           ) : (
-            <p className="text-xs text-slate-500">
-              Сравнение включается для периодов Сегодня, 7 дней и 30 дней.
-            </p>
+            <p className="text-xs text-slate-500">Сравнение недоступно</p>
           )}
         </div>
 
@@ -122,9 +111,6 @@ export default function AnalyticsAdvanced({
             <h4 className="text-sm font-semibold text-slate-200 mb-1">
               Что выглядит сильнее
             </h4>
-            <p className="text-xs text-slate-500 mb-3">
-              Слоты, которые в этом периоде показали себя лучше остальных.
-            </p>
             <div className="space-y-2">
               {slotTops.bestByProfit.length === 0 ? (
                 <p className="text-xs text-slate-500">Нет данных по фильтру.</p>
@@ -152,9 +138,6 @@ export default function AnalyticsAdvanced({
             <h4 className="text-sm font-semibold text-slate-200 mb-1">
               Что тянуло вниз
             </h4>
-            <p className="text-xs text-slate-500 mb-3">
-              Слоты, которые в этом периоде чаще давали слабый результат.
-            </p>
             <div className="space-y-2">
               {slotTops.worstSlots.length === 0 ? (
                 <p className="text-xs text-slate-500">Нет данных по фильтру.</p>
@@ -182,10 +165,6 @@ export default function AnalyticsAdvanced({
           <h4 className="text-sm font-semibold text-slate-200 mb-1">
             По провайдерам
           </h4>
-          <p className="text-xs text-slate-500 mb-3">
-            У каких провайдеров было больше всего игры и какой результат они
-            дали.
-          </p>
           <div className="space-y-2">
             {providerAnalytics.length === 0 ? (
               <p className="text-xs text-slate-500">
@@ -227,9 +206,6 @@ export default function AnalyticsAdvanced({
           <summary className="list-none cursor-pointer select-none px-4 py-3 flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-200">
               Полная таблица по слотам
-            </span>
-            <span className="text-xs text-slate-500">
-              Для тех, кто хочет посмотреть глубже
             </span>
           </summary>
           <div className="px-4 pb-4">
@@ -312,9 +288,6 @@ export default function AnalyticsAdvanced({
           <summary className="list-none cursor-pointer select-none px-4 py-3 flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-200">
               Текстовый отчёт
-            </span>
-            <span className="text-xs text-slate-500">
-              Короткий отчёт для копирования
             </span>
           </summary>
           <div className="px-4 pb-4">

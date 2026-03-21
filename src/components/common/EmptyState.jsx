@@ -8,9 +8,11 @@ export default function EmptyState({ title, description }) {
         <Dices size={26} className="text-slate-600" />
       </div>
       <p className="text-slate-200 text-sm font-semibold">{title}</p>
-      <p className="text-slate-500 text-xs mt-1 max-w-[280px] mx-auto leading-5">
-        {description}
-      </p>
+      {description && (
+        <p className="text-slate-500 text-xs mt-1 max-w-[280px] mx-auto leading-5">
+          {description}
+        </p>
+      )}
     </div>
   );
 }

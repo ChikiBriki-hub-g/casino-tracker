@@ -5,8 +5,6 @@ import { formatInputWithCommas } from "../../../utils/casino";
 export default function SlotEntryForm({
   editingSession,
   handleCreateNewGroup,
-  slotGroups,
-  activeGroupId,
   handleAddSlotSession,
   resetSlotForm,
   lastSessionInActiveGroup,
@@ -34,6 +32,7 @@ export default function SlotEntryForm({
 }) {
   const quickSpinOptions = ["50", "100", "200", "300", "500"];
   const quickBonusOptions = [0, 1, 2, 3, 5];
+  const isFormIncomplete = !slotName || !slotBet || !slotSpins || !slotBalance;
 
   return (
     <>
@@ -44,9 +43,6 @@ export default function SlotEntryForm({
             <h3 className="text-lg font-semibold text-slate-200">
               {editingSession ? "Редактировать запись" : "Новая запись"}
             </h3>
-            <p className="text-xs text-slate-500">
-              Внесите одну игровую запись без лишних шагов.
-            </p>
           </div>
         </div>
         <button
@@ -59,13 +55,6 @@ export default function SlotEntryForm({
       </div>
 
       <div className="surface-card relative p-5">
-        <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-950/50 px-3 py-2.5 text-xs font-semibold text-slate-300">
-          <span className="text-slate-500">Сейчас записываем в</span>
-          <span className="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-indigo-200">
-            {slotGroups.find((group) => group.id === activeGroupId)?.name || ""}
-          </span>
-        </div>
-
         <form onSubmit={handleAddSlotSession} className="space-y-4">
           {editingSession && (
             <div className="flex flex-col gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-3 text-xs text-amber-200 sm:flex-row sm:items-center sm:justify-between">
@@ -150,19 +139,6 @@ export default function SlotEntryForm({
               </div>
               <Search size={18} className="text-slate-500" />
             </button>
-            {slotName && (
-              <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-2 text-xs text-slate-400">
-                <span className="text-slate-500">Выбрано:</span>{" "}
-                <span className="font-semibold text-slate-200">{slotName}</span>
-                {slotProvider && (
-                  <>
-                    {" · "}
-                    <span className="text-slate-500">Провайдер:</span>{" "}
-                    <span className="text-slate-300">{slotProvider}</span>
-                  </>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -172,6 +148,7 @@ export default function SlotEntryForm({
               </label>
               <input
                 type="text"
+                inputMode="numeric"
                 required
                 value={slotBet}
                 onChange={(event) =>
@@ -203,6 +180,7 @@ export default function SlotEntryForm({
               </label>
               <input
                 type="number"
+                inputMode="numeric"
                 required
                 value={slotSpins}
                 onChange={(event) => setSlotSpins(event.target.value)}
@@ -235,6 +213,7 @@ export default function SlotEntryForm({
               </label>
               <input
                 type="number"
+                inputMode="numeric"
                 value={slotBonuses}
                 onChange={handleBonusesChange}
                 className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
@@ -267,6 +246,7 @@ export default function SlotEntryForm({
                   <input
                     key={index}
                     type="text"
+                    inputMode="numeric"
                     value={win}
                     onChange={(event) =>
                       handleBonusWinChange(index, event.target.value)
@@ -320,6 +300,7 @@ export default function SlotEntryForm({
             </label>
             <input
               type="text"
+              inputMode="numeric"
               required
               value={slotBalance}
               onChange={(event) =>
@@ -333,7 +314,12 @@ export default function SlotEntryForm({
           <div className="sticky bottom-20 z-10 -mx-1 rounded-2xl border border-slate-800 bg-slate-950/90 p-3 shadow-2xl shadow-slate-950/40 backdrop-blur-md">
             <button
               type="submit"
-              className="w-full rounded-xl bg-indigo-600 py-4 text-base font-semibold text-white transition-colors shadow-lg shadow-indigo-900/20 hover:bg-indigo-700 active:bg-indigo-800"
+              disabled={isFormIncomplete}
+              className={`w-full rounded-xl py-4 text-base font-semibold transition-colors shadow-lg ${
+                isFormIncomplete
+                  ? "cursor-not-allowed bg-slate-800 text-slate-500 shadow-none"
+                  : "bg-indigo-600 text-white shadow-indigo-900/20 hover:bg-indigo-700 active:bg-indigo-800"
+              }`}
             >
               {editingSession ? "Сохранить изменения" : "Добавить запись"}
             </button>

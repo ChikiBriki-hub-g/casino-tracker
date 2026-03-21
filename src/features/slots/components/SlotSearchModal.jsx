@@ -89,16 +89,19 @@ export default function SlotSearchModal({ slots }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-sm p-0 sm:p-4">
-      <div className="bg-slate-900 border-t sm:border border-slate-700 rounded-t-2xl sm:rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl h-[80vh] sm:h-[600px] flex flex-col animate-in slide-in-from-bottom-full sm:fade-in sm:slide-in-from-bottom-0 duration-200">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-sm p-0 sm:p-4"
+      onClick={slots.closeSlotSearch}
+    >
+      <div
+        className="bg-slate-900 border-t sm:border border-slate-700 rounded-t-2xl sm:rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl h-[80vh] sm:h-[600px] flex flex-col animate-in slide-in-from-bottom-full sm:fade-in sm:slide-in-from-bottom-0 duration-200"
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="border-b border-slate-800 p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-slate-100">
                 Выбор слота
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                Найдите слот по названию или выберите из недавних и избранных.
               </p>
             </div>
             <button
@@ -119,6 +122,16 @@ export default function SlotSearchModal({ slots }) {
               placeholder="Начните вводить название слота"
               className="w-full border-none bg-transparent text-base text-slate-100 placeholder-slate-500 focus:outline-none"
             />
+            {slots.slotSearchQuery && (
+              <button
+                type="button"
+                onClick={() => slots.setSlotSearchQuery("")}
+                className="rounded-lg p-1 text-slate-500 transition-colors hover:bg-slate-800 hover:text-slate-200"
+                aria-label="Очистить поиск"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
 
           <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500">
@@ -182,9 +195,6 @@ export default function SlotSearchModal({ slots }) {
             <div className="px-4 py-10 text-center">
               <p className="text-sm text-slate-300 font-semibold">
                 Ничего не найдено
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                Уточните запрос или добавьте слот в свои.
               </p>
             </div>
           )}

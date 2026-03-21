@@ -5,7 +5,6 @@ export default function LineChart({ series, height = 160, color = "#6366f1" }) {
     return (
       <div className="h-[160px] flex flex-col items-center justify-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl gap-1">
         <span className="text-slate-300 font-semibold">Пока нет данных</span>
-        <span>Добавьте записи за выбранный период.</span>
       </div>
     );
   }
@@ -16,11 +15,13 @@ export default function LineChart({ series, height = 160, color = "#6366f1" }) {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
-  const step = series.length > 1 ? (width - padding * 2) / (series.length - 1) : 0;
+  const step =
+    series.length > 1 ? (width - padding * 2) / (series.length - 1) : 0;
 
   const points = series.map((point, index) => {
     const x = padding + index * step;
-    const y = padding + (height - padding * 2) * (1 - (point.value - min) / range);
+    const y =
+      padding + (height - padding * 2) * (1 - (point.value - min) / range);
     return { x, y };
   });
 

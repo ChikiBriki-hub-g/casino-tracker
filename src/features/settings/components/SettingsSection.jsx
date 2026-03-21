@@ -14,7 +14,7 @@ function StatCard({ label, value, hint }) {
         {label}
       </p>
       <p className="mt-2 text-lg font-semibold text-slate-100">{value}</p>
-      {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="mt-1 text-[11px] text-slate-500">{hint}</p>}
     </div>
   );
 }
@@ -131,20 +131,16 @@ export default function SettingsSection({
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <StatCard
-            label="Операции"
-            value={financeCount}
-            hint="Депозиты и выводы"
-          />
+          <StatCard label="Операции" value={financeCount} hint="Финансы" />
           <StatCard
             label="Сессии"
             value={sessionGroupCount}
-            hint={`${slotRecordCount} записей по слотам`}
+            hint={`${slotRecordCount} записей`}
           />
           <StatCard
             label="Избранные слоты"
             value={favoriteSlotCount}
-            hint={`${customSlotCount} добавлены вручную`}
+            hint={`${customSlotCount} своих`}
           />
           <StatCard
             label="Провайдеры"
@@ -174,14 +170,9 @@ export default function SettingsSection({
             onClick={handleExportData}
             className="flex w-full items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-left transition-colors hover:border-slate-700 hover:bg-slate-950/70"
           >
-            <div>
-              <p className="text-sm font-semibold text-slate-100">
-                Экспортировать данные
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                Скачать JSON с финансами, сессиями, слотами и настройками.
-              </p>
-            </div>
+            <p className="text-sm font-semibold text-slate-100">
+              Экспортировать данные
+            </p>
             <Download size={18} className="text-slate-400" />
           </button>
 
@@ -203,9 +194,6 @@ export default function SettingsSection({
 
             {isResetConfirmOpen && (
               <div className="mt-4 rounded-xl border border-rose-500/20 bg-slate-950/50 p-3">
-                <p className="text-xs text-slate-400">
-                  Это действие нельзя отменить внутри приложения.
-                </p>
                 <div className="mt-3 flex gap-3">
                   <button
                     type="button"

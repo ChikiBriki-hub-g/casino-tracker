@@ -94,10 +94,7 @@ export default function FinanceTab({
           <h3 className="section-title">Операции</h3>
         </div>
         {transactions.length === 0 ? (
-          <EmptyState
-            title="Операций пока нет"
-            description="Добавьте депозит или вывод, чтобы увидеть движение банка и общую картину по финансам."
-          />
+          <EmptyState title="Операций пока нет" />
         ) : (
           <div className="space-y-3">
             {transactions.map((t) => (

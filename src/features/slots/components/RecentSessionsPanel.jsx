@@ -108,10 +108,7 @@ export default function RecentSessionsPanel({
             ))}
           </div>
         ) : (
-          <EmptyState
-            title="Недавних записей нет"
-            description="Добавьте первую запись в сессию. Здесь появятся быстрые действия и статусы."
-          />
+          <EmptyState title="Недавних записей нет" />
         )}
       </div>
     </details>

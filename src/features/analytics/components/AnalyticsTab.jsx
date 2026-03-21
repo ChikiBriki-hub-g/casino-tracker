@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AnalyticsAdvanced from "./AnalyticsAdvanced";
 import AnalyticsOverview from "./AnalyticsOverview";
 
 export default function AnalyticsTab(props) {
-  const [viewMode, setViewMode] = useState("simple");
+  const [viewMode, setViewMode] = useState(() => {
+    if (typeof window === "undefined") return "simple";
+    const savedViewMode = window.localStorage.getItem(
+      "casino-manager-analytics-view-mode",
+    );
+    return savedViewMode === "advanced" ? "advanced" : "simple";
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("casino-manager-analytics-view-mode", viewMode);
+  }, [viewMode]);
+
   const {
     PERIOD_FILTERS,
     analyticsActionState,
@@ -41,14 +53,9 @@ export default function AnalyticsTab(props) {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg">
         <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-3">
-          <div>
-            <p className="text-sm font-semibold text-slate-200">
-              Режим аналитики
-            </p>
-            <p className="text-xs text-slate-500">
-              Переключайтесь между простой сводкой и подробным разбором.
-            </p>
-          </div>
+          <p className="text-sm font-semibold text-slate-200">
+            Режим аналитики
+          </p>
           <div className="flex items-center gap-2 rounded-xl bg-slate-900/80 p-1">
             <button
               type="button"

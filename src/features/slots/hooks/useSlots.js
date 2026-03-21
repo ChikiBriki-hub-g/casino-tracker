@@ -176,25 +176,25 @@ const useSlots = ({
       {
         id: "recent",
         title: "Недавние",
-        emptyText: "Недавние слоты появятся после первых сессий.",
+        emptyText: "Пусто",
         items: recent,
       },
       {
         id: "favorites",
         title: "Избранные",
-        emptyText: "Добавляйте слоты в избранное по звездочке.",
+        emptyText: "Пусто",
         items: favorites,
       },
       {
         id: "custom",
         title: "Ваши слоты",
-        emptyText: "Здесь появятся слоты, которые вы добавили сами.",
+        emptyText: "Пусто",
         items: custom,
       },
       {
         id: "popular",
         title: "Популярные",
-        emptyText: "Популярные слоты не найдены по вашему запросу.",
+        emptyText: "Нет совпадений",
         items: popular,
       },
     ];

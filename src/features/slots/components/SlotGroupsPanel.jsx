@@ -162,10 +162,7 @@ export default function SlotGroupsPanel({
 
                 <div className="p-3">
                   {group.items.length === 0 ? (
-                    <EmptyState
-                      title="Сессия пока пустая"
-                      description="Нажмите «Добавить запись» выше и внесите первую игру в эту сессию."
-                    />
+                    <EmptyState title="Сессия пока пустая" />
                   ) : (
                     <div className="space-y-3">
                       {group.items.map((session, index) => {

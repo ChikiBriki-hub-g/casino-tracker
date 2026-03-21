@@ -48,7 +48,7 @@ export default function AnalyticsOverview({
             Math.abs(periodComparison.diff.totalResult),
           )}`
         : "Почти как прошлый период"
-    : "Сравнение появится для периодов 1 / 7 / 30 дней";
+    : "Сравнение недоступно";
 
   return (
     <>
@@ -189,7 +189,7 @@ export default function AnalyticsOverview({
             {topSlot ? topSlot[0] : "Пока нет данных"}
           </p>
           <p className="mt-1 text-xs text-slate-500">
-            {topSlot ? `${topSlot[1]} сесс.` : "Добавьте записи за период"}
+            {topSlot ? `${topSlot[1]} сесс.` : "Нет данных"}
           </p>
         </div>
 
@@ -203,7 +203,7 @@ export default function AnalyticsOverview({
           <p className="mt-1 text-xs text-slate-500">
             {bestSlot
               ? `Результат ${formatNumber(bestSlot.totalResult)}`
-              : "Появится после нескольких записей"}
+              : "Нет данных"}
           </p>
         </div>
 
@@ -215,9 +215,7 @@ export default function AnalyticsOverview({
             {topProvider ? topProvider.provider : "Пока нет данных"}
           </p>
           <p className="mt-1 text-xs text-slate-500">
-            {topProvider
-              ? `${topProvider.sessions} сесс.`
-              : "Станет виден позже"}
+            {topProvider ? `${topProvider.sessions} сесс.` : "Нет данных"}
           </p>
         </div>
       </div>
@@ -230,9 +228,7 @@ export default function AnalyticsOverview({
           <p className="text-lg font-semibold text-slate-100">
             {analyticsSummary.totalSessions}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Сколько игровых записей попало в период
-          </p>
+          <p className="mt-1 text-xs text-slate-500">За период</p>
         </div>
         <div className="summary-card p-3">
           <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
@@ -241,9 +237,7 @@ export default function AnalyticsOverview({
           <p className="text-lg font-semibold text-slate-100">
             {formatNumber(analyticsSummary.totalSpins)}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Общее количество прокруток
-          </p>
+          <p className="mt-1 text-xs text-slate-500">За период</p>
         </div>
         <div className="summary-card p-3">
           <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
@@ -257,9 +251,7 @@ export default function AnalyticsOverview({
                   analyticsCurrency,
                 )}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Средний размер ставки по выбранным сессиям
-          </p>
+          <p className="mt-1 text-xs text-slate-500">По выборке</p>
         </div>
         <div className="summary-card p-3">
           <p className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">
@@ -288,10 +280,6 @@ export default function AnalyticsOverview({
               <h4 className="text-sm font-semibold text-slate-200">
                 Как менялся баланс
               </h4>
-              <p className="text-[11px] text-slate-500">
-                Если линия растёт, период идёт лучше. Если падает, баланс
-                проседает.
-              </p>
             </div>
             <span className="text-[10px] text-slate-500">
               {analyticsCurrency === "all"

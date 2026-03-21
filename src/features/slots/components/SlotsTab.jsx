@@ -31,7 +31,6 @@ export default function SlotsTab(props) {
     SESSION_TAGS,
     slotTags,
     setSlotTags,
-    keepQuickContext,
     slotBalance,
     setSlotBalance,
     recentSessions,
@@ -52,63 +51,11 @@ export default function SlotsTab(props) {
     handleDeleteSlotSession,
     handleRequestDeleteSession,
   } = props;
-  const activeGroup = slotGroups.find((group) => group.id === activeGroupId);
-  const activeGroupItems = activeGroup?.items || [];
-  const latestSession = activeGroupItems[0];
-  const totalRecords = slotGroups.reduce(
-    (sum, group) => sum + group.items.length,
-    0,
-  );
-
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-            Активная сессия
-          </p>
-          <p className="mt-2 text-sm font-semibold text-slate-100">
-            {activeGroup?.name || "Не выбрана"}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Записей в ней: {activeGroupItems.length}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-            Последний слот
-          </p>
-          <p className="mt-2 text-sm font-semibold text-slate-100">
-            {latestSession?.name || "Пока пусто"}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            {latestSession?.provider || "Провайдер появится после записи"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-            Режим ввода
-          </p>
-          <p className="mt-2 text-sm font-semibold text-slate-100">
-            {editingSession
-              ? "Редактирование"
-              : keepQuickContext
-                ? "Быстрая запись"
-                : "Обычная запись"}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Всего записей: {totalRecords}
-          </p>
-        </div>
-      </div>
-
       <SlotEntryForm
         editingSession={editingSession}
         handleCreateNewGroup={handleCreateNewGroup}
-        slotGroups={slotGroups}
-        activeGroupId={activeGroupId}
         handleAddSlotSession={handleAddSlotSession}
         resetSlotForm={resetSlotForm}
         lastSessionInActiveGroup={lastSessionInActiveGroup}
