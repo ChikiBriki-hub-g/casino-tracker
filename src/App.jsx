@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Activity,
   CheckCircle2,
-  ChevronDown,
   Gamepad2,
   Loader2,
   Settings2,
@@ -15,6 +14,7 @@ import FinanceSection from "./features/finance/components/FinanceSection";
 import SlotsSection from "./features/slots/components/SlotsSection";
 import AnalyticsSection from "./features/analytics/components/AnalyticsSection";
 import SettingsSection from "./features/settings/components/SettingsSection";
+import FaqButton from "./components/common/FaqButton";
 import { CURRENCY_OPTIONS } from "./features/analytics/constants";
 import { POPULAR_SLOTS, POPULAR_SLOT_PROVIDER_MAP } from "./data/slots";
 import useFinance from "./features/finance/hooks/useFinance";
@@ -39,6 +39,7 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState("saved");
   const [currency, setCurrency] = useState("₽");
   const [activeTab, setActiveTab] = useState("finance");
+  const [theme, setTheme] = useState("dark");
   const skipInitialSave = useRef(true);
 
   const finance = useFinance({ currency });
@@ -73,43 +74,13 @@ export default function App() {
     (sum, group) => sum + group.items.length,
     0,
   );
-  const activeTabMeta = {
-    finance: {
-      title: "Финансы",
-      description: "Контроль депозита, вывода и общего результата по банку.",
-      badge: `${transactions.length} операций`,
-    },
-    slots: {
-      title: "Слоты",
-      description:
-        "Быстрое добавление сессий, повтор записей и управление слотами.",
-      badge: `${totalSlotRecords} записей`,
-    },
-    analytics: {
-      title: "Аналитика",
-      description:
-        "Понятная сводка по игре и детальный разбор, когда он нужен.",
-      badge: `${recentSessions.length} сессий в базе`,
-    },
-    settings: {
-      title: "Настройки",
-      description:
-        "Управление поведением приложения, данными и резервными действиями.",
-      badge:
-        saveStatus === "saved"
-          ? "Все изменения сохранены"
-          : saveStatus === "saving"
-            ? "Идёт сохранение"
-            : "Есть проблема с сохранением",
-    },
-  }[activeTab];
-
   const handleExportData = () => {
     const payload = {
       exportedAt: new Date().toISOString(),
       currency,
       appSettings: {
         keepQuickContext,
+        theme,
       },
       transactions,
       slotGroups,
@@ -137,8 +108,14 @@ export default function App() {
     setTransactions([]);
     resetAllSlotsData();
     setCurrency("₽");
+    setTheme("dark");
     setActiveTab("finance");
   };
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   useEffect(() => {
     tg?.ready?.();
@@ -238,6 +215,12 @@ export default function App() {
         if (typeof payload.appSettings?.keepQuickContext === "boolean") {
           setKeepQuickContext(payload.appSettings.keepQuickContext);
         }
+        if (
+          payload.appSettings?.theme === "dark" ||
+          payload.appSettings?.theme === "light"
+        ) {
+          setTheme(payload.appSettings.theme);
+        }
       } catch (error) {
         console.error("Ошибка загрузки данных:", error);
       } finally {
@@ -287,6 +270,7 @@ export default function App() {
               currency,
               appSettings: {
                 keepQuickContext,
+                theme,
               },
             },
           }),
@@ -316,6 +300,7 @@ export default function App() {
     keepQuickContext,
     slotGroups,
     slotProviders,
+    theme,
   ]);
 
   if (authState.status === "checking") {
@@ -351,7 +336,7 @@ export default function App() {
 
   return (
     <div className="app-shell min-h-screen text-slate-100 font-sans pb-24 selection:bg-indigo-500/30">
-      <header className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900/85 backdrop-blur-md">
+      <header className="app-header sticky top-0 z-10 border-b border-slate-800 bg-slate-900/85 backdrop-blur-md">
         <div className="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="rounded-xl border border-indigo-400/30 bg-indigo-500/15 p-2 shadow-lg shadow-indigo-950/20">
@@ -386,50 +371,21 @@ export default function App() {
             </div>
           </div>
 
-          <div className="relative">
-            <select
-              value={currency}
-              onChange={(event) => setCurrency(event.target.value)}
-              className="appearance-none bg-slate-800/80 text-slate-200 border border-slate-700 rounded-xl pl-3 pr-8 py-1.5 text-sm font-semibold focus:outline-none focus:border-indigo-500 cursor-pointer"
-            >
-              {CURRENCY_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={14}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-            />
-          </div>
+          <span className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] font-semibold text-slate-300">
+            {activeTab === "finance" && `${transactions.length} операций`}
+            {activeTab === "slots" && `${totalSlotRecords} записей`}
+            {activeTab === "analytics" && `${recentSessions.length} сессий`}
+            {activeTab === "settings" &&
+              (saveStatus === "saved"
+                ? "Сохранено"
+                : saveStatus === "saving"
+                  ? "Сохранение"
+                  : "Ошибка")}
+          </span>
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <section className="surface-card overflow-hidden">
-          <div className="border-b border-slate-800 bg-slate-950/40 px-5 py-3">
-            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">
-              Активный раздел
-            </p>
-          </div>
-          <div className="px-5 py-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-100">
-                  {activeTabMeta.title}
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-slate-400">
-                  {activeTabMeta.description}
-                </p>
-              </div>
-              <span className="shrink-0 rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] font-semibold text-slate-300">
-                {activeTabMeta.badge}
-              </span>
-            </div>
-          </div>
-        </section>
-
+      <main className="max-w-md mx-auto px-4 py-6">
         {activeTab === "finance" && (
           <FinanceSection finance={finance} currency={currency} />
         )}
@@ -451,6 +407,8 @@ export default function App() {
             currency={currency}
             setCurrency={setCurrency}
             currencyOptions={CURRENCY_OPTIONS}
+            theme={theme}
+            setTheme={setTheme}
             keepQuickContext={keepQuickContext}
             setKeepQuickContext={setKeepQuickContext}
             saveStatus={saveStatus}
@@ -466,7 +424,9 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-0 z-40 w-full border-t border-slate-800 bg-slate-900/90 pb-safe backdrop-blur-md">
+      <FaqButton />
+
+      <nav className="app-nav fixed bottom-0 z-40 w-full border-t border-slate-800 bg-slate-900/90 pb-safe backdrop-blur-md">
         <div className="max-w-md mx-auto px-3 py-2">
           <div className="grid h-16 grid-cols-4 gap-2 rounded-2xl border border-slate-800 bg-slate-950/70 p-1 shadow-2xl shadow-slate-950/30">
             <button

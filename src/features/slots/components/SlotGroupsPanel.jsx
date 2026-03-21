@@ -30,7 +30,7 @@ export default function SlotGroupsPanel({
   return (
     <details className="pt-4 group" defaultOpen={false}>
       <summary className="list-none cursor-pointer select-none">
-        <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3">
+        <div className="surface-card-muted flex items-center justify-between rounded-xl px-4 py-3">
           <span className="text-sm font-semibold text-slate-200">
             Сессии и записи
           </span>
@@ -54,7 +54,7 @@ export default function SlotGroupsPanel({
             return (
               <div
                 key={group.id}
-                className={`bg-[#0f172a] rounded-2xl border ${
+                className={`surface-card rounded-2xl border ${
                   activeGroupId === group.id
                     ? "border-indigo-500/50"
                     : "border-slate-800"
@@ -197,7 +197,7 @@ export default function SlotGroupsPanel({
                         return (
                           <div
                             key={session.id}
-                            className="bg-[#1e293b] border border-slate-700/50 rounded-xl p-3 shadow-sm hover:border-slate-600 transition-colors relative"
+                            className="surface-card-muted border border-slate-700/50 rounded-xl p-3 shadow-sm hover:border-slate-600 transition-colors relative"
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
@@ -255,7 +255,7 @@ export default function SlotGroupsPanel({
                             )}
 
                             <div className="grid grid-cols-3 gap-2 mb-3">
-                              <div className="bg-slate-900/50 rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
+                              <div className="surface-card-muted rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
                                 <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
                                   Ставка
                                 </span>
@@ -264,7 +264,7 @@ export default function SlotGroupsPanel({
                                   {currentCurrency}
                                 </span>
                               </div>
-                              <div className="bg-slate-900/50 rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
+                              <div className="surface-card-muted rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
                                 <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
                                   Спины
                                 </span>
@@ -272,7 +272,7 @@ export default function SlotGroupsPanel({
                                   {session.spins}
                                 </span>
                               </div>
-                              <div className="bg-slate-900/50 rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
+                              <div className="surface-card-muted rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
                                 <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
                                   Бонуски
                                 </span>

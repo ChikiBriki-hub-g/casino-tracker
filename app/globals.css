@@ -16,6 +16,20 @@
     body {
         @apply bg-transparent text-slate-100;
     }
+
+    html[data-theme="light"] {
+        background:
+            radial-gradient(
+                circle at top,
+                rgba(99, 102, 241, 0.1),
+                transparent 28%
+            ),
+            linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+    }
+
+    html[data-theme="light"] body {
+        color: #0f172a;
+    }
 }
 
 @layer components {
@@ -56,4 +70,151 @@
     .section-description {
         @apply mt-1 text-xs text-slate-500;
     }
+}
+
+html[data-theme="light"] .app-shell {
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(99, 102, 241, 0.09),
+            transparent 24%
+        ),
+        linear-gradient(180deg, rgba(248, 250, 252, 0.98) 0%, #eef2ff 100%);
+}
+
+html[data-theme="light"] .surface-card,
+html[data-theme="light"] .surface-card-muted,
+html[data-theme="light"] .summary-card {
+    border-color: rgba(148, 163, 184, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06) !important;
+}
+
+html[data-theme="light"] .surface-card {
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+html[data-theme="light"] .surface-card-muted,
+html[data-theme="light"] .summary-card {
+    background: rgba(255, 255, 255, 0.72) !important;
+}
+
+html[data-theme="light"] .text-slate-100,
+html[data-theme="light"] .text-slate-200,
+html[data-theme="light"] .text-slate-300 {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .text-slate-400,
+html[data-theme="light"] .text-slate-500,
+html[data-theme="light"] .text-slate-600 {
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .bg-slate-950,
+html[data-theme="light"] .bg-slate-950\/20,
+html[data-theme="light"] .bg-slate-950\/30,
+html[data-theme="light"] .bg-slate-950\/40,
+html[data-theme="light"] .bg-slate-950\/50,
+html[data-theme="light"] .bg-slate-950\/60,
+html[data-theme="light"] .bg-slate-950\/70,
+html[data-theme="light"] .bg-slate-950\/80,
+html[data-theme="light"] .bg-slate-900,
+html[data-theme="light"] .bg-slate-900\/50,
+html[data-theme="light"] .bg-slate-900\/60,
+html[data-theme="light"] .bg-slate-900\/70,
+html[data-theme="light"] .bg-slate-900\/80,
+html[data-theme="light"] .bg-slate-900\/85,
+html[data-theme="light"] .bg-slate-900\/90,
+html[data-theme="light"] .bg-slate-900\/95,
+html[data-theme="light"] .bg-slate-800,
+html[data-theme="light"] .bg-slate-800\/80 {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+}
+
+html[data-theme="light"] .border-slate-800,
+html[data-theme="light"] .border-slate-800\/50,
+html[data-theme="light"] .border-slate-700,
+html[data-theme="light"] .border-slate-700\/50 {
+    border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+html[data-theme="light"] .placeholder-slate-400::placeholder,
+html[data-theme="light"] .placeholder-slate-500::placeholder,
+html[data-theme="light"] .placeholder-slate-600::placeholder {
+    color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .app-header,
+html[data-theme="light"] .app-nav {
+    background: rgba(255, 255, 255, 0.82) !important;
+    border-color: rgba(148, 163, 184, 0.28) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+html[data-theme="light"] .faq-fab {
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+    color: #0f172a !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12) !important;
+}
+
+html[data-theme="light"] .faq-fab:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+    color: #312e81 !important;
+}
+
+html[data-theme="light"] .faq-overlay {
+    background: rgba(15, 23, 42, 0.28) !important;
+}
+
+html[data-theme="light"] .faq-modal {
+    background: rgba(255, 255, 255, 0.96) !important;
+}
+
+html[data-theme="light"] .bg-indigo-950\/20,
+html[data-theme="light"] .bg-indigo-950\/30,
+html[data-theme="light"] .bg-indigo-950\/40,
+html[data-theme="light"] .bg-indigo-500\/10,
+html[data-theme="light"] .bg-indigo-500\/15,
+html[data-theme="light"] .bg-indigo-500\/20,
+html[data-theme="light"] .bg-indigo-600\/20 {
+    background-color: rgba(99, 102, 241, 0.08) !important;
+}
+
+html[data-theme="light"] .text-indigo-200,
+html[data-theme="light"] .text-indigo-300,
+html[data-theme="light"] .text-indigo-400 {
+    color: #4338ca !important;
+}
+
+html[data-theme="light"] .bg-amber-500\/10,
+html[data-theme="light"] .bg-amber-500\/20 {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+}
+
+html[data-theme="light"] .text-amber-100,
+html[data-theme="light"] .text-amber-200,
+html[data-theme="light"] .text-amber-400 {
+    color: #b45309 !important;
+}
+
+html[data-theme="light"] .bg-rose-500\/5,
+html[data-theme="light"] .bg-rose-500\/15,
+html[data-theme="light"] .bg-rose-500\/20 {
+    background-color: rgba(244, 63, 94, 0.1) !important;
+}
+
+html[data-theme="light"] .text-rose-200,
+html[data-theme="light"] .text-rose-300,
+html[data-theme="light"] .text-rose-400,
+html[data-theme="light"] .text-rose-500 {
+    color: #be123c !important;
+}
+
+html[data-theme="light"] .text-emerald-200,
+html[data-theme="light"] .text-emerald-300,
+html[data-theme="light"] .text-emerald-400,
+html[data-theme="light"] .text-emerald-500 {
+    color: #047857 !important;
 }

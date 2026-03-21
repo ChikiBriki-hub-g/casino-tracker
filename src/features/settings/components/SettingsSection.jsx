@@ -3,14 +3,13 @@ import {
   Cloud,
   Download,
   RefreshCcw,
-  Settings2,
   ShieldAlert,
   SlidersHorizontal,
 } from "lucide-react";
 
 function StatCard({ label, value, hint }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+    <div className="summary-card">
       <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
         {label}
       </p>
@@ -24,6 +23,8 @@ export default function SettingsSection({
   currency,
   setCurrency,
   currencyOptions,
+  theme,
+  setTheme,
   keepQuickContext,
   setKeepQuickContext,
   saveStatus,
@@ -40,18 +41,6 @@ export default function SettingsSection({
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg">
-        <div className="flex items-center gap-2">
-          <Settings2 size={20} className="text-indigo-400" />
-          <div>
-            <h2 className="text-lg font-semibold text-slate-100">Настройки</h2>
-            <p className="text-sm text-slate-500">
-              Управление приложением, данными и поведением записи.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg">
         <div className="flex items-center gap-2">
           <SlidersHorizontal size={18} className="text-indigo-400" />
@@ -59,6 +48,36 @@ export default function SettingsSection({
         </div>
 
         <div className="mt-4 space-y-4">
+          <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+            <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">
+              Тема приложения
+            </label>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setTheme("dark")}
+                className={`rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
+                  theme === "dark"
+                    ? "border-indigo-500/40 bg-indigo-500/15 text-indigo-200"
+                    : "border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-600"
+                }`}
+              >
+                Тёмная
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("light")}
+                className={`rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
+                  theme === "light"
+                    ? "border-indigo-500/40 bg-indigo-500/15 text-indigo-200"
+                    : "border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-600"
+                }`}
+              >
+                Светлая
+              </button>
+            </div>
+          </div>
+
           <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
             <label className="block text-xs font-medium uppercase tracking-wider text-slate-500">
               Валюта приложения
@@ -74,9 +93,6 @@ export default function SettingsSection({
                 </option>
               ))}
             </select>
-            <p className="mt-2 text-xs text-slate-500">
-              Используется в финансах, слотах и аналитике.
-            </p>
           </div>
 
           <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
@@ -84,10 +100,6 @@ export default function SettingsSection({
               <div>
                 <p className="text-sm font-semibold text-slate-100">
                   Быстрая запись слотов
-                </p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  После сохранения оставлять слот, провайдера и ставку для серии
-                  похожих записей.
                 </p>
               </div>
               <button
@@ -178,10 +190,6 @@ export default function SettingsSection({
               <div>
                 <p className="text-sm font-semibold text-rose-200">
                   Сбросить все данные
-                </p>
-                <p className="mt-1 text-xs leading-5 text-slate-400">
-                  Полностью очищает финансы, сессии слотов, избранное и
-                  пользовательские слоты.
                 </p>
               </div>
               <button

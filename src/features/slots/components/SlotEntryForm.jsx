@@ -29,8 +29,6 @@ export default function SlotEntryForm({
   sessionTags,
   slotTags,
   setSlotTags,
-  keepQuickContext,
-  setKeepQuickContext,
   slotBalance,
   setSlotBalance,
 }) {
@@ -316,39 +314,6 @@ export default function SlotEntryForm({
             </div>
           </div>
 
-          {!editingSession && (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-slate-200">
-                    Быстрая запись
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500 leading-5">
-                    После сохранения оставить слот, провайдера и ставку, чтобы
-                    быстро добавлять похожие записи подряд.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setKeepQuickContext((prev) => !prev)}
-                  className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors ${
-                    keepQuickContext
-                      ? "bg-indigo-500/20 border-indigo-500/40"
-                      : "bg-slate-800 border-slate-700"
-                  }`}
-                  aria-pressed={keepQuickContext}
-                  aria-label="Переключить быструю запись"
-                >
-                  <span
-                    className={`inline-block h-5 w-5 rounded-full bg-white transition-transform ${
-                      keepQuickContext ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          )}
-
           <div>
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
               Итоговый баланс
@@ -364,14 +329,6 @@ export default function SlotEntryForm({
               placeholder="Например, 7 980"
             />
           </div>
-
-          {!editingSession && (
-            <p className="rounded-xl border border-slate-800 bg-slate-950/30 px-3 py-3 text-[11px] text-slate-500 leading-5">
-              Совет: если вы играете одинаковой ставкой или похожими сериями,
-              используйте быстрые кнопки выше и включайте быструю запись. Это
-              заметно ускоряет добавление сессий.
-            </p>
-          )}
 
           <div className="sticky bottom-20 z-10 -mx-1 rounded-2xl border border-slate-800 bg-slate-950/90 p-3 shadow-2xl shadow-slate-950/40 backdrop-blur-md">
             <button

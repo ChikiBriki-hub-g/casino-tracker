@@ -32,7 +32,6 @@ export default function SlotsTab(props) {
     slotTags,
     setSlotTags,
     keepQuickContext,
-    setKeepQuickContext,
     slotBalance,
     setSlotBalance,
     recentSessions,
@@ -132,8 +131,6 @@ export default function SlotsTab(props) {
         sessionTags={SESSION_TAGS}
         slotTags={slotTags}
         setSlotTags={setSlotTags}
-        keepQuickContext={keepQuickContext}
-        setKeepQuickContext={setKeepQuickContext}
         slotBalance={slotBalance}
         setSlotBalance={setSlotBalance}
       />

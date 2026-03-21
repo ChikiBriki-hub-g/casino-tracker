@@ -91,12 +91,7 @@ export default function FinanceTab({
       <div className="pt-4">
         <div className="section-header mb-4">
           <History size={20} className="text-slate-400" />
-          <div>
-            <h3 className="section-title">Операции</h3>
-            <p className="section-description">
-              История пополнений и выводов по вашему банку.
-            </p>
-          </div>
+          <h3 className="section-title">Операции</h3>
         </div>
         {transactions.length === 0 ? (
           <EmptyState

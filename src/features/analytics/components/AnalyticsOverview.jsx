@@ -1,5 +1,4 @@
 import React from "react";
-import { Sparkles } from "lucide-react";
 import LineChart from "../../../components/charts/LineChart";
 
 export default function AnalyticsOverview({
@@ -53,16 +52,7 @@ export default function AnalyticsOverview({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="section-header">
-          <Sparkles size={18} className="text-slate-400" />
-          <div>
-            <h3 className="section-title">Аналитика</h3>
-            <p className="section-description">
-              Понятная сводка по игре без лишней математики
-            </p>
-          </div>
-        </div>
+      <div className="mb-4 flex items-center justify-end gap-2">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -169,14 +159,6 @@ export default function AnalyticsOverview({
         >
           Только мои слоты
         </button>
-      </div>
-
-      <div className="surface-card-muted mb-5 p-4">
-        <p className="text-xs text-slate-400 leading-5">
-          Здесь собраны только главные ответы: в плюсе вы или в минусе, что чаще
-          всего играли, что показало лучший результат и как менялся банк.
-          Сложные метрики спрятаны ниже в блоке для продвинутого просмотра.
-        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-5">

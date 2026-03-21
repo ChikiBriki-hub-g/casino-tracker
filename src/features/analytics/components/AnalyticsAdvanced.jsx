@@ -11,10 +11,7 @@ export default function AnalyticsAdvanced({
   getMetricToneClass,
 }) {
   return (
-    <details
-      className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30"
-      defaultOpen={false}
-    >
+    <details className="surface-card-muted mt-4 rounded-xl" defaultOpen={false}>
       <summary className="list-none cursor-pointer select-none px-4 py-3 flex items-center justify-between">
         <span className="text-sm font-semibold text-slate-200">
           Продвинутая аналитика
@@ -25,7 +22,7 @@ export default function AnalyticsAdvanced({
       </summary>
 
       <div className="px-4 pb-4 space-y-4">
-        <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+        <div className="surface-card-muted rounded-xl p-4">
           <h4 className="text-sm font-semibold text-slate-200 mb-1">
             Что видно по игре
           </h4>
@@ -36,7 +33,7 @@ export default function AnalyticsAdvanced({
             {analyticsInsights.map((insight, index) => (
               <div
                 key={`${index}-${insight}`}
-                className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2 text-xs text-slate-300"
+                className="surface-card rounded-lg px-3 py-2 text-xs text-slate-300"
               >
                 {index + 1}. {insight}
               </div>
@@ -44,7 +41,7 @@ export default function AnalyticsAdvanced({
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+        <div className="surface-card-muted rounded-xl p-4">
           <h4 className="text-sm font-semibold text-slate-200 mb-1">
             По сравнению с прошлым периодом
           </h4>
@@ -53,7 +50,7 @@ export default function AnalyticsAdvanced({
           </p>
           {periodComparison ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+              <div className="surface-card rounded-lg p-3">
                 <p className="text-slate-500 uppercase tracking-wider mb-2">
                   Сейчас
                 </p>
@@ -63,11 +60,15 @@ export default function AnalyticsAdvanced({
                 <p className="text-slate-200">
                   Спины: {formatNumber(periodComparison.current.spins)}
                 </p>
-                <p className={getMetricToneClass(periodComparison.current.totalResult)}>
+                <p
+                  className={getMetricToneClass(
+                    periodComparison.current.totalResult,
+                  )}
+                >
                   Итог: {formatNumber(periodComparison.current.totalResult)}
                 </p>
               </div>
-              <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+              <div className="surface-card rounded-lg p-3">
                 <p className="text-slate-500 uppercase tracking-wider mb-2">
                   До этого
                 </p>
@@ -77,15 +78,21 @@ export default function AnalyticsAdvanced({
                 <p className="text-slate-200">
                   Спины: {formatNumber(periodComparison.previous.spins)}
                 </p>
-                <p className={getMetricToneClass(periodComparison.previous.totalResult)}>
+                <p
+                  className={getMetricToneClass(
+                    periodComparison.previous.totalResult,
+                  )}
+                >
                   Итог: {formatNumber(periodComparison.previous.totalResult)}
                 </p>
               </div>
-              <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+              <div className="surface-card rounded-lg p-3">
                 <p className="text-slate-500 uppercase tracking-wider mb-2">
                   Разница
                 </p>
-                <p className={getMetricToneClass(periodComparison.diff.sessions)}>
+                <p
+                  className={getMetricToneClass(periodComparison.diff.sessions)}
+                >
                   Сессии: {periodComparison.diff.sessions > 0 ? "+" : ""}
                   {periodComparison.diff.sessions}
                 </p>
@@ -93,7 +100,11 @@ export default function AnalyticsAdvanced({
                   Спины: {periodComparison.diff.spins > 0 ? "+" : ""}
                   {formatNumber(periodComparison.diff.spins)}
                 </p>
-                <p className={getMetricToneClass(periodComparison.diff.totalResult)}>
+                <p
+                  className={getMetricToneClass(
+                    periodComparison.diff.totalResult,
+                  )}
+                >
                   Итог: {periodComparison.diff.totalResult > 0 ? "+" : ""}
                   {formatNumber(periodComparison.diff.totalResult)}
                 </p>
@@ -107,7 +118,7 @@ export default function AnalyticsAdvanced({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <div className="surface-card-muted rounded-xl p-4">
             <h4 className="text-sm font-semibold text-slate-200 mb-1">
               Что выглядит сильнее
             </h4>
@@ -121,12 +132,14 @@ export default function AnalyticsAdvanced({
                 slotTops.bestByProfit.map((slot) => (
                   <div
                     key={`profit-${slot.slot}`}
-                    className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2"
+                    className="surface-card rounded-lg px-3 py-2"
                   >
                     <p className="text-sm font-semibold text-slate-100">
                       {slot.slot}
                     </p>
-                    <p className={`text-xs ${getMetricToneClass(slot.totalResult)}`}>
+                    <p
+                      className={`text-xs ${getMetricToneClass(slot.totalResult)}`}
+                    >
                       Итог: {formatNumber(slot.totalResult)}
                     </p>
                   </div>
@@ -135,7 +148,7 @@ export default function AnalyticsAdvanced({
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <div className="surface-card-muted rounded-xl p-4">
             <h4 className="text-sm font-semibold text-slate-200 mb-1">
               Что тянуло вниз
             </h4>
@@ -149,7 +162,7 @@ export default function AnalyticsAdvanced({
                 slotTops.worstSlots.map((slot) => (
                   <div
                     key={`weak-${slot.slot}`}
-                    className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2"
+                    className="surface-card rounded-lg px-3 py-2"
                   >
                     <p className="text-sm font-semibold text-slate-100">
                       {slot.slot}
@@ -165,12 +178,13 @@ export default function AnalyticsAdvanced({
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+        <div className="surface-card-muted rounded-xl p-4">
           <h4 className="text-sm font-semibold text-slate-200 mb-1">
             По провайдерам
           </h4>
           <p className="text-xs text-slate-500 mb-3">
-            У каких провайдеров было больше всего игры и какой результат они дали.
+            У каких провайдеров было больше всего игры и какой результат они
+            дали.
           </p>
           <div className="space-y-2">
             {providerAnalytics.length === 0 ? (
@@ -181,14 +195,15 @@ export default function AnalyticsAdvanced({
               providerAnalytics.slice(0, 5).map((provider) => (
                 <div
                   key={`provider-${provider.provider}`}
-                  className="rounded-lg border border-slate-800 bg-slate-900/60 p-3 flex items-center justify-between gap-3"
+                  className="surface-card rounded-lg p-3 flex items-center justify-between gap-3"
                 >
                   <div>
                     <p className="text-sm font-semibold text-slate-100">
                       {provider.provider}
                     </p>
                     <p className="text-[11px] text-slate-400">
-                      {provider.sessions} сесс. · {formatNumber(provider.spins)} спинов
+                      {provider.sessions} сесс. · {formatNumber(provider.spins)}{" "}
+                      спинов
                     </p>
                   </div>
                   <div className="text-right text-xs">
@@ -197,7 +212,9 @@ export default function AnalyticsAdvanced({
                     </p>
                     <p className="text-slate-400">
                       Эффективность{" "}
-                      {provider.roi !== null ? `${provider.roi.toFixed(2)}%` : "—"}
+                      {provider.roi !== null
+                        ? `${provider.roi.toFixed(2)}%`
+                        : "—"}
                     </p>
                   </div>
                 </div>
@@ -206,7 +223,7 @@ export default function AnalyticsAdvanced({
           </div>
         </div>
 
-        <details className="rounded-xl border border-slate-800 bg-slate-950/40">
+        <details className="surface-card-muted rounded-xl">
           <summary className="list-none cursor-pointer select-none px-4 py-3 flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-200">
               Полная таблица по слотам
@@ -225,7 +242,7 @@ export default function AnalyticsAdvanced({
                 slotAnalytics.map((slot) => (
                   <div
                     key={`slot-metrics-${slot.slot}`}
-                    className="rounded-lg border border-slate-800 bg-slate-900/60 p-3"
+                    className="surface-card rounded-lg p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-slate-100">
@@ -246,7 +263,9 @@ export default function AnalyticsAdvanced({
                       <p>Средняя ставка: {formatNumber(slot.averageBet)}</p>
                       <p>
                         Средний бонус:{" "}
-                        {slot.averageBonusWin ? formatNumber(slot.averageBonusWin) : "—"}
+                        {slot.averageBonusWin
+                          ? formatNumber(slot.averageBonusWin)
+                          : "—"}
                       </p>
                       <p>Лучший x: x{slot.bestX || 0}</p>
                       <p>
@@ -265,14 +284,21 @@ export default function AnalyticsAdvanced({
                           ? slot.averageSpinsToBonus.toFixed(1)
                           : "—"}
                       </p>
-                      <p>Лучший win: {slot.bestWin ? formatNumber(slot.bestWin) : "—"}</p>
+                      <p>
+                        Лучший win:{" "}
+                        {slot.bestWin ? formatNumber(slot.bestWin) : "—"}
+                      </p>
                       <p>
                         Лучшая сессия:{" "}
-                        {slot.bestSession ? formatNumber(slot.bestSession.value) : "—"}
+                        {slot.bestSession
+                          ? formatNumber(slot.bestSession.value)
+                          : "—"}
                       </p>
                       <p>
                         Худшая сессия:{" "}
-                        {slot.worstSession ? formatNumber(slot.worstSession.value) : "—"}
+                        {slot.worstSession
+                          ? formatNumber(slot.worstSession.value)
+                          : "—"}
                       </p>
                     </div>
                   </div>
@@ -282,7 +308,7 @@ export default function AnalyticsAdvanced({
           </div>
         </details>
 
-        <details className="rounded-xl border border-slate-800 bg-slate-950/40">
+        <details className="surface-card-muted rounded-xl">
           <summary className="list-none cursor-pointer select-none px-4 py-3 flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-200">
               Текстовый отчёт

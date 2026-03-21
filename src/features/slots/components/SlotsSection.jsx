@@ -34,7 +34,6 @@ export default function SlotsSection({ slots, analytics, currency }) {
         slotTags={slots.slotTags}
         setSlotTags={slots.setSlotTags}
         keepQuickContext={slots.keepQuickContext}
-        setKeepQuickContext={slots.setKeepQuickContext}
         slotBalance={slots.slotBalance}
         setSlotBalance={slots.setSlotBalance}
         recentSessions={slots.recentSessions}
