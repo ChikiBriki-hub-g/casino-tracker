@@ -28,6 +28,7 @@ export default function AnalyticsOverview({
   formatMoneyWithCurrency,
   getMetricToneClass,
   balanceSeries,
+  financeOverview,
 }) {
   const topSlot = analyticsHighlights.topSlot;
   const bestSlot = slotTops.bestByProfit[0];
@@ -272,6 +273,89 @@ export default function AnalyticsOverview({
           <p className="mt-1 text-xs text-slate-500">{comparisonText}</p>
         </div>
       </div>
+
+      {financeOverview && (
+        <div className="surface-card-muted mb-5 p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h4 className="text-sm font-semibold text-slate-200">
+              Влияние слотов на общий банк
+            </h4>
+            <span
+              className={`text-xs font-semibold ${
+                financeOverview.netResult >= 0
+                  ? "text-emerald-400"
+                  : "text-rose-400"
+              }`}
+            >
+              {financeOverview.netResult > 0 ? "+" : ""}
+              {formatMoneyWithCurrency(
+                financeOverview.netResult,
+                financeOverview.currency,
+              )}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="summary-card p-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                Слоты
+              </p>
+              <p
+                className={`mt-2 text-lg font-semibold ${
+                  financeOverview.slotResult >= 0
+                    ? "text-emerald-400"
+                    : "text-rose-400"
+                }`}
+              >
+                {financeOverview.slotResult > 0 ? "+" : ""}
+                {formatMoneyWithCurrency(
+                  financeOverview.slotResult,
+                  financeOverview.currency,
+                )}
+              </p>
+            </div>
+            <div className="summary-card p-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                Депозиты
+              </p>
+              <p className="mt-2 text-lg font-semibold text-slate-100">
+                {formatMoneyWithCurrency(
+                  financeOverview.deposits,
+                  financeOverview.currency,
+                )}
+              </p>
+            </div>
+            <div className="summary-card p-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                Выводы
+              </p>
+              <p className="mt-2 text-lg font-semibold text-slate-100">
+                {formatMoneyWithCurrency(
+                  financeOverview.withdrawals,
+                  financeOverview.currency,
+                )}
+              </p>
+            </div>
+            <div className="summary-card p-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                Итог банка
+              </p>
+              <p
+                className={`mt-2 text-lg font-semibold ${
+                  financeOverview.netResult >= 0
+                    ? "text-emerald-400"
+                    : "text-rose-400"
+                }`}
+              >
+                {financeOverview.netResult > 0 ? "+" : ""}
+                {formatMoneyWithCurrency(
+                  financeOverview.netResult,
+                  financeOverview.currency,
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         <div className="surface-card-muted p-4">

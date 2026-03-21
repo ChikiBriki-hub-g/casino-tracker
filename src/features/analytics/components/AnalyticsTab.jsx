@@ -30,6 +30,7 @@ export default function AnalyticsTab(props) {
     formatMoneyWithCurrency,
     getMetricToneClass,
     balanceSeries,
+    financeOverview,
     plSeries,
     analyticsInsights,
     slotAnalytics,
@@ -66,6 +67,7 @@ export default function AnalyticsTab(props) {
           formatMoneyWithCurrency={formatMoneyWithCurrency}
           getMetricToneClass={getMetricToneClass}
           balanceSeries={balanceSeries}
+          financeOverview={financeOverview}
           plSeries={plSeries}
         />
 

@@ -42,14 +42,15 @@ export default function App() {
   const [theme, setTheme] = useState("dark");
   const skipInitialSave = useRef(true);
 
-  const finance = useFinance({ currency });
   const slots = useSlots({
     currency,
     popularSlots: POPULAR_SLOTS,
     popularSlotProviderMap: POPULAR_SLOT_PROVIDER_MAP,
     maxRecentSlots: 5,
   });
+  const finance = useFinance({ currency, slotGroups: slots.slotGroups });
   const { transactions, setTransactions } = finance;
+  const totalFinanceOperations = finance.allTransactions.length;
   const {
     customSlots,
     favoriteSlots,
@@ -74,6 +75,13 @@ export default function App() {
     (sum, group) => sum + group.items.length,
     0,
   );
+  const financeOverview = {
+    deposits: finance.stats.totalDeposits,
+    withdrawals: finance.stats.totalWithdrawals,
+    slotResult: finance.stats.totalSlotResult,
+    netResult: finance.stats.netProfit,
+    currency,
+  };
   const handleExportData = () => {
     const payload = {
       exportedAt: new Date().toISOString(),
@@ -372,7 +380,7 @@ export default function App() {
           </div>
 
           <span className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-[11px] font-semibold text-slate-300">
-            {activeTab === "finance" && `${transactions.length} операций`}
+            {activeTab === "finance" && `${totalFinanceOperations} операций`}
             {activeTab === "slots" && `${totalSlotRecords} записей`}
             {activeTab === "analytics" && `${recentSessions.length} сессий`}
             {activeTab === "settings" &&
@@ -400,6 +408,7 @@ export default function App() {
           <AnalyticsSection
             analytics={analytics}
             providerOptions={providerOptions}
+            financeOverview={financeOverview}
           />
         )}
         {activeTab === "settings" && (
@@ -412,7 +421,7 @@ export default function App() {
             keepQuickContext={keepQuickContext}
             setKeepQuickContext={setKeepQuickContext}
             saveStatus={saveStatus}
-            financeCount={transactions.length}
+            financeCount={totalFinanceOperations}
             sessionGroupCount={slotGroups.length}
             slotRecordCount={totalSlotRecords}
             customSlotCount={customSlots.length}

@@ -8,7 +8,9 @@ export default function FinanceSection({ finance, currency }) {
         stats={finance.stats}
         formatMoney={finance.formatMoney}
         openModal={finance.openModal}
-        transactions={finance.transactions}
+        transactions={finance.visibleTransactions}
+        transactionFilter={finance.transactionFilter}
+        setTransactionFilter={finance.setTransactionFilter}
         formatDate={finance.formatDate}
         handleDeleteTransaction={finance.handleDeleteTransaction}
       />

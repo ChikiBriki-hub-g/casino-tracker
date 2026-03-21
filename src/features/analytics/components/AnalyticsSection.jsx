@@ -2,7 +2,11 @@ import React from "react";
 import AnalyticsTab from "./AnalyticsTab";
 import { CURRENCY_OPTIONS, PERIOD_FILTERS } from "../constants";
 
-export default function AnalyticsSection({ analytics, providerOptions }) {
+export default function AnalyticsSection({
+  analytics,
+  providerOptions,
+  financeOverview,
+}) {
   return (
     <AnalyticsTab
       PERIOD_FILTERS={PERIOD_FILTERS}
@@ -31,6 +35,7 @@ export default function AnalyticsSection({ analytics, providerOptions }) {
       formatMoneyWithCurrency={analytics.formatMoneyWithCurrency}
       getMetricToneClass={analytics.getMetricToneClass}
       balanceSeries={analytics.balanceSeries}
+      financeOverview={financeOverview}
       plSeries={analytics.plSeries}
       analyticsInsights={analytics.analyticsInsights}
       slotAnalytics={analytics.slotAnalytics}

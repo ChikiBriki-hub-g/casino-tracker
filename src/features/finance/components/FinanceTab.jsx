@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Gamepad2,
   MinusCircle,
   PlusCircle,
   TrendingUp,
@@ -14,9 +15,17 @@ export default function FinanceTab({
   formatMoney,
   openModal,
   transactions,
+  transactionFilter,
+  setTransactionFilter,
   formatDate,
   handleDeleteTransaction,
 }) {
+  const filters = [
+    { id: "all", label: "Все" },
+    { id: "manual", label: "Ручные" },
+    { id: "slots", label: "Из слотов" },
+  ];
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div
@@ -69,6 +78,24 @@ export default function FinanceTab({
             {formatMoney(stats.totalWithdrawals)}
           </p>
         </div>
+        <div className="summary-card col-span-2">
+          <div className="flex items-center gap-2 mb-2 text-indigo-300">
+            <Gamepad2 size={18} />
+            <span className="text-sm font-medium">Слоты</span>
+          </div>
+          <div className="flex items-end justify-between gap-3">
+            <p
+              className={`text-xl font-semibold ${stats.totalSlotResult >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+            >
+              {stats.totalSlotResult > 0 ? "+" : ""}
+              {formatMoney(stats.totalSlotResult)}
+            </p>
+            <p className="text-xs text-slate-500">
+              +{formatMoney(stats.totalSlotWins)} / -
+              {formatMoney(stats.totalSlotLosses)}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 pt-2">
@@ -89,9 +116,27 @@ export default function FinanceTab({
       </div>
 
       <div className="pt-4">
-        <div className="section-header mb-4">
-          <History size={20} className="text-slate-400" />
-          <h3 className="section-title">Операции</h3>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="section-header">
+            <History size={20} className="text-slate-400" />
+            <h3 className="section-title">Операции</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {filters.map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => setTransactionFilter(filter.id)}
+                className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors ${
+                  transactionFilter === filter.id
+                    ? "border-indigo-500/40 bg-indigo-500/20 text-indigo-200"
+                    : "border-slate-700 bg-slate-800 text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
         </div>
         {transactions.length === 0 ? (
           <EmptyState title="Операций пока нет" />
@@ -104,34 +149,64 @@ export default function FinanceTab({
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`p-2 rounded-full ${t.type === "deposit" ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"}`}
+                    className={`p-2 rounded-full ${
+                      t.type === "deposit"
+                        ? "bg-rose-500/10 text-rose-500"
+                        : t.type === "withdraw"
+                          ? "bg-emerald-500/10 text-emerald-500"
+                          : t.netAmount >= 0
+                            ? "bg-emerald-500/10 text-emerald-500"
+                            : "bg-rose-500/10 text-rose-500"
+                    }`}
                   >
                     {t.type === "deposit" ? (
                       <TrendingDown size={18} />
-                    ) : (
+                    ) : t.type === "withdraw" ? (
                       <TrendingUp size={18} />
+                    ) : (
+                      <Gamepad2 size={18} />
                     )}
                   </div>
                   <div>
                     <p className="font-medium text-slate-200">{t.note}</p>
-                    <p className="text-xs text-slate-500">
-                      {formatDate(t.date)}
-                    </p>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                      <span>{formatDate(t.date)}</span>
+                      {t.type === "slot" && (
+                        <>
+                          <span>·</span>
+                          <span>{t.groupName}</span>
+                          {t.provider && (
+                            <>
+                              <span>·</span>
+                              <span>{t.provider}</span>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <span
-                    className={`font-bold ${t.type === "deposit" ? "text-rose-400" : "text-emerald-400"}`}
+                    className={`font-bold ${
+                      t.netAmount >= 0 ? "text-emerald-400" : "text-rose-400"
+                    }`}
                   >
-                    {t.type === "deposit" ? "-" : "+"}
+                    {t.netAmount > 0 ? "+" : "-"}
                     {formatMoney(t.amount)}
                   </span>
-                  <button
-                    onClick={() => handleDeleteTransaction(t.id)}
-                    className="text-slate-600 hover:text-rose-500 transition-colors p-1"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {t.source === "manual" ? (
+                    <button
+                      onClick={() => handleDeleteTransaction(t.id)}
+                      className="text-slate-600 hover:text-rose-500 transition-colors p-1"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  ) : (
+                    <span className="rounded-full border border-slate-700 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                      Слоты
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
