@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Cloud,
   Download,
+  Upload,
   RefreshCcw,
   ShieldAlert,
   SlidersHorizontal,
@@ -35,9 +36,12 @@ export default function SettingsSection({
   favoriteSlotCount,
   providerCount,
   handleExportData,
+  handleImportData,
   handleResetAllData,
+  importStatus,
 }) {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const fileInputRef = useRef(null);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -174,6 +178,38 @@ export default function SettingsSection({
               Экспортировать данные
             </p>
             <Download size={18} className="text-slate-400" />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json"
+            className="hidden"
+            onChange={handleImportData}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex w-full items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-left transition-colors hover:border-slate-700 hover:bg-slate-950/70"
+          >
+            <div>
+              <p className="text-sm font-semibold text-slate-100">
+                Импортировать резервную копию
+              </p>
+              {importStatus !== "idle" && (
+                <p
+                  className={`mt-1 text-[11px] ${
+                    importStatus === "success"
+                      ? "text-emerald-400"
+                      : "text-rose-400"
+                  }`}
+                >
+                  {importStatus === "success"
+                    ? "Данные импортированы"
+                    : "Не удалось импортировать файл"}
+                </p>
+              )}
+            </div>
+            <Upload size={18} className="text-slate-400" />
           </button>
 
           <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4">

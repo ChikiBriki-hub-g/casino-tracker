@@ -587,9 +587,19 @@ const useSlots = ({
   };
 
   const hydrate = useCallback(({ groups, custom, favorites, providers }) => {
-    if (Array.isArray(groups) && groups.length > 0) {
-      setSlotGroups(groups);
-      setActiveGroupId(groups[0].id);
+    if (Array.isArray(groups)) {
+      if (groups.length > 0) {
+        setSlotGroups(groups);
+        setActiveGroupId(groups[0].id);
+      } else {
+        const nextGroup = {
+          id: crypto.randomUUID(),
+          name: "Сессия 1",
+          items: [],
+        };
+        setSlotGroups([nextGroup]);
+        setActiveGroupId(nextGroup.id);
+      }
     }
     if (Array.isArray(custom)) setCustomSlots(custom);
     if (Array.isArray(favorites)) setFavoriteSlots(favorites);
@@ -599,6 +609,8 @@ const useSlots = ({
       !Array.isArray(providers)
     ) {
       setSlotProviders(providers);
+    } else if (providers && typeof providers === "object") {
+      setSlotProviders({});
     }
   }, []);
 
