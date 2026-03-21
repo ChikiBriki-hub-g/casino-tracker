@@ -12,7 +12,6 @@ import EmptyState from "../../../components/common/EmptyState";
 
 export default function FinanceTab({
   stats,
-  hasManualDeposits,
   formatMoney,
   openModal,
   transactions,
@@ -21,6 +20,12 @@ export default function FinanceTab({
   formatDate,
   handleDeleteTransaction,
 }) {
+  const handleOpenModal = (type) => (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openModal(type);
+  };
+
   const filters = [
     { id: "all", label: "Все" },
     { id: "manual", label: "Ручные" },
@@ -29,13 +34,6 @@ export default function FinanceTab({
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      {!hasManualDeposits && (
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-          Сначала укажите депозит. После этого результаты из слотов начнут
-          учитываться в общем банке.
-        </div>
-      )}
-
       <div
         className={`relative overflow-hidden rounded-2xl p-6 shadow-lg ${stats.isProfitable ? "bg-emerald-900/20 border border-emerald-500/30" : "bg-rose-900/20 border border-rose-500/30"}`}
       >
@@ -112,14 +110,16 @@ export default function FinanceTab({
 
       <div className="grid grid-cols-2 gap-4 pt-2">
         <button
-          onClick={() => openModal("deposit")}
+          type="button"
+          onClick={handleOpenModal("deposit")}
           className="flex flex-col items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-2xl p-4 transition-colors shadow-lg shadow-indigo-900/20"
         >
           <MinusCircle size={28} />
           <span className="font-semibold tracking-wide">Депозит</span>
         </button>
         <button
-          onClick={() => openModal("withdraw")}
+          type="button"
+          onClick={handleOpenModal("withdraw")}
           className="flex flex-col items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl p-4 transition-colors shadow-lg shadow-emerald-900/20"
         >
           <PlusCircle size={28} />
@@ -209,6 +209,7 @@ export default function FinanceTab({
                   </span>
                   {t.source === "manual" ? (
                     <button
+                      type="button"
                       onClick={() => handleDeleteTransaction(t.id)}
                       className="text-slate-600 hover:text-rose-500 transition-colors p-1"
                     >
