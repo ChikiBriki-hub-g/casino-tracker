@@ -83,35 +83,6 @@ export default function App() {
     netResult: finance.stats.netProfit,
     currency,
   };
-  const latestSession = recentSessions[0] || null;
-  const appHighlights = [
-    {
-      id: "bank",
-      label: "Банк",
-      value: `${finance.stats.netProfit > 0 ? "+" : ""}${finance.formatMoney(finance.stats.netProfit)}`,
-      tone: finance.stats.netProfit >= 0 ? "text-emerald-400" : "text-rose-400",
-      hint: "Общий итог",
-    },
-    {
-      id: "slots",
-      label: "Слоты",
-      value: `${finance.stats.totalSlotResult > 0 ? "+" : ""}${finance.formatMoney(finance.stats.totalSlotResult)}`,
-      tone:
-        finance.stats.totalSlotResult >= 0
-          ? "text-emerald-400"
-          : "text-rose-400",
-      hint: `${totalSlotRecords} записей`,
-    },
-    {
-      id: "latest",
-      label: "Последняя запись",
-      value: latestSession ? latestSession.name : "Пока пусто",
-      tone: "text-slate-100",
-      hint: latestSession
-        ? `${latestSession.provider || "Без провайдера"} · ${slots.formatDate(latestSession.date)}`
-        : "Добавьте первую запись",
-    },
-  ];
   const handleExportData = () => {
     const payload = {
       exportedAt: new Date().toISOString(),
@@ -477,21 +448,6 @@ export default function App() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-6">
-        {activeTab !== "settings" && (
-          <section className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {appHighlights.map((item) => (
-              <div key={item.id} className="surface-card-muted p-4">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  {item.label}
-                </p>
-                <p className={`mt-2 text-base font-semibold ${item.tone}`}>
-                  {item.value}
-                </p>
-                <p className="mt-1 text-[11px] text-slate-500">{item.hint}</p>
-              </div>
-            ))}
-          </section>
-        )}
         {activeTab === "finance" && (
           <FinanceSection finance={finance} currency={currency} />
         )}
