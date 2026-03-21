@@ -69,6 +69,24 @@ const parseValidDate = (value) => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
+const formatDisplayNumber = (value) =>
+  Math.round(Number(value) || 0).toLocaleString("en-US");
+
+const formatDisplayMoney = (value, currency) =>
+  `${formatDisplayNumber(value)} ${currency}`;
+
+const formatShortDateTime = (value) => {
+  const date = parseValidDate(value);
+  if (!date) return "";
+
+  return date.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export {
   formatInputWithCommas,
   parseAmount,
@@ -77,4 +95,7 @@ export {
   mergeUniqueSlots,
   includesSlotQuery,
   parseValidDate,
+  formatDisplayNumber,
+  formatDisplayMoney,
+  formatShortDateTime,
 };

@@ -7,7 +7,7 @@ import {
   History,
   Trash2,
 } from "lucide-react";
-import EmptyState from "../common/EmptyState";
+import EmptyState from "../../../components/common/EmptyState";
 
 export default function FinanceTab({
   stats,
@@ -20,7 +20,7 @@ export default function FinanceTab({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div
-        className={`relative overflow-hidden rounded-2xl p-6 ${stats.isProfitable ? "bg-emerald-900/20 border border-emerald-500/30" : "bg-rose-900/20 border border-rose-500/30"}`}
+        className={`relative overflow-hidden rounded-2xl p-6 shadow-lg ${stats.isProfitable ? "bg-emerald-900/20 border border-emerald-500/30" : "bg-rose-900/20 border border-rose-500/30"}`}
       >
         <div className="absolute top-0 right-0 p-4 opacity-10">
           {stats.isProfitable ? (
@@ -51,7 +51,7 @@ export default function FinanceTab({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
+        <div className="summary-card">
           <div className="flex items-center gap-2 text-rose-400 mb-2">
             <MinusCircle size={18} />
             <span className="text-sm font-medium">Депозиты</span>
@@ -60,7 +60,7 @@ export default function FinanceTab({
             {formatMoney(stats.totalDeposits)}
           </p>
         </div>
-        <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
+        <div className="summary-card">
           <div className="flex items-center gap-2 text-emerald-400 mb-2">
             <PlusCircle size={18} />
             <span className="text-sm font-medium">Выводы</span>
@@ -89,9 +89,14 @@ export default function FinanceTab({
       </div>
 
       <div className="pt-4">
-        <div className="flex items-center gap-2 mb-4 px-1">
+        <div className="section-header mb-4">
           <History size={20} className="text-slate-400" />
-          <h3 className="text-lg font-semibold text-slate-200">Операции</h3>
+          <div>
+            <h3 className="section-title">Операции</h3>
+            <p className="section-description">
+              История пополнений и выводов по вашему банку.
+            </p>
+          </div>
         </div>
         {transactions.length === 0 ? (
           <EmptyState
@@ -103,7 +108,7 @@ export default function FinanceTab({
             {transactions.map((t) => (
               <div
                 key={t.id}
-                className="group bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center justify-between"
+                className="surface-card p-4 flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
                   <div

@@ -1,4 +1,4 @@
-# Casino Tracker (Telegram Mini App)
+# Casino Manager (Telegram Mini App)
 
 ## Быстрый старт
 
@@ -48,7 +48,3 @@
 ## Безопасность
 
 Проверка `initData` выполняется на сервере. Доступ к Firestore идет через клиентский SDK на сервере и подчиняется правилам безопасности Firestore. Не ослабляйте правила, иначе данные будут доступны любому.
-
-## Миграции
-
-Инструкции по обновлению см. в [MIGRATION.md](/F:/projects/casino-tracker/MIGRATION.md).
