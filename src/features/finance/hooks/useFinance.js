@@ -22,7 +22,7 @@ const useFinance = ({ currency, slotGroups = [] }) => {
           const currentBalance = parseAmount(item.balance);
           const previousBalance = previousItem
             ? parseAmount(previousItem.balance)
-            : Number.NaN;
+            : 0;
 
           if (
             Number.isNaN(currentBalance) ||

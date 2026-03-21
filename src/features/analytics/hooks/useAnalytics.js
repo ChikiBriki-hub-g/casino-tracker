@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   formatDisplayMoney,
   formatDisplayNumber,
@@ -19,7 +19,15 @@ const useAnalytics = ({
   const [analyticsCurrency, setAnalyticsCurrency] = useState("all");
   const [filterFavoritesOnly, setFilterFavoritesOnly] = useState(false);
   const [filterCustomOnly, setFilterCustomOnly] = useState(false);
-  const [analyticsNow] = useState(() => Date.now());
+  const [analyticsNow, setAnalyticsNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setAnalyticsNow(Date.now());
+    }, 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const formatNumber = (value) => formatDisplayNumber(value);
   const formatMoneyWithCurrency = (value, nextCurrency) =>
@@ -406,7 +414,10 @@ const useAnalytics = ({
         roi:
           item.turnover > 0 ? (item.totalResult / item.turnover) * 100 : null,
       }))
-      .sort((a, b) => b.totalResult - a.totalResult);
+      .sort((a, b) => {
+        if (b.sessions !== a.sessions) return b.sessions - a.sessions;
+        return b.totalResult - a.totalResult;
+      });
   }, [filteredSessions]);
 
   const periodComparison = useMemo(() => {
