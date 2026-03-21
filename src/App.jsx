@@ -93,7 +93,7 @@ export default function App() {
           userId: data.user.id.toString(),
           error: "",
         });
-      } catch (error) {
+      } catch {
         setError(
           "Не удалось проверить авторизацию Telegram. Попробуйте позже.",
         );
@@ -789,7 +789,9 @@ export default function App() {
 
   const handleDuplicateSession = (session, targetGroupId = activeGroupId) => {
     if (!targetGroupId) return;
-    const { groupId, groupName, ...rest } = session;
+    const rest = { ...session };
+    delete rest.groupId;
+    delete rest.groupName;
     const duplicate = {
       ...rest,
       id: crypto.randomUUID(),
@@ -1505,7 +1507,6 @@ export default function App() {
     filterCustomOnly,
     analyticsSummary,
     analyticsHighlights,
-    filteredSessions,
     analyticsInsights,
   ]);
 

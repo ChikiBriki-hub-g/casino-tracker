@@ -1,33 +1,34 @@
 {
-    "name": "casino-tracker",
-    "private": true,
-    "version": "0.0.0",
-    "type": "module",
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "lint": "eslint .",
-        "tg:webhook": "node scripts/set-telegram-webhook.js"
-    },
-    "dependencies": {
-        "dotenv": "^17.3.1",
-        "firebase": "^12.11.0",
-        "lucide-react": "^0.577.0",
-        "next": "^15.5.0",
-        "react": "^19.2.4",
-        "react-dom": "^19.2.4"
-    },
-    "devDependencies": {
-        "@eslint/js": "^9.39.4",
-        "@next/eslint-plugin-next": "^15.5.13",
-        "@types/react": "^19.2.14",
-        "@types/react-dom": "^19.2.3",
-        "autoprefixer": "^10.4.27",
-        "eslint": "^9.39.4",
-        "eslint-plugin-react-hooks": "^7.0.1",
-        "globals": "^17.4.0",
-        "postcss": "^8.5.8",
-        "tailwindcss": "^3.4.19"
-    }
+  "name": "casino-tracker",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "slots:catalog": "node scripts/slots/build-slot-catalog.mjs",
+    "tg:webhook": "node scripts/set-telegram-webhook.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "firebase": "^12.11.0",
+    "lucide-react": "^0.577.0",
+    "next": "^15.5.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@next/eslint-plugin-next": "^15.5.13",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^17.4.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19"
+  }
 }
