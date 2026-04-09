@@ -15,8 +15,6 @@ export default function SlotEntryForm({
   handleDuplicateLastSession,
   setIsSlotSearchOpen,
   slotName,
-  slotMode,
-  setSlotMode,
   slotProvider,
   slotBet,
   setSlotBet,
@@ -34,18 +32,9 @@ export default function SlotEntryForm({
   setSlotBalance,
 }) {
   const quickSpinOptions = ["50", "100", "200", "300", "500"];
-  const quickBuyOptions = ["1", "2", "3", "5", "10"];
   const quickBonusOptions = [0, 1, 2, 3, 5];
-  const isSpinsMode = slotMode === "spins";
-  const hasModeRequiredField = isSpinsMode
-    ? Boolean(slotSpins)
-    : Number(slotBonuses) > 0;
   const isFormIncomplete =
-    !hasManualDeposits ||
-    !slotName ||
-    !slotBet ||
-    !slotBalance ||
-    !hasModeRequiredField;
+    !hasManualDeposits || !slotName || !slotBet || !slotSpins || !slotBalance;
   const fieldLabelClass =
     "mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
   const helperTextClass = "text-[11px] leading-5 text-slate-500";
@@ -178,34 +167,6 @@ export default function SlotEntryForm({
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/30 p-3">
-              <label className={fieldLabelClass}>Режим</label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSlotMode("spins")}
-                  className={`rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
-                    isSpinsMode
-                      ? "border-indigo-500/40 bg-indigo-500/20 text-indigo-200"
-                      : "border-slate-700 bg-slate-800 text-slate-300 hover:text-slate-100"
-                  }`}
-                >
-                  Спины
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSlotMode("bonus_buy")}
-                  className={`rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
-                    !isSpinsMode
-                      ? "border-indigo-500/40 bg-indigo-500/20 text-indigo-200"
-                      : "border-slate-700 bg-slate-800 text-slate-300 hover:text-slate-100"
-                  }`}
-                >
-                  Бонус-бай
-                </button>
-              </div>
-            </div>
-
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-slate-800/80 bg-slate-950/30 p-3">
                 <label className={fieldLabelClass}>Размер ставки</label>
@@ -243,42 +204,33 @@ export default function SlotEntryForm({
                 </div>
               </div>
               <div className="rounded-2xl border border-slate-800/80 bg-slate-950/30 p-3">
-                <label className={fieldLabelClass}>
-                  {isSpinsMode ? "Количество спинов" : "Количество бонус-баев"}
-                </label>
+                <label className={fieldLabelClass}>Количество спинов</label>
                 <input
                   type="number"
                   inputMode="numeric"
                   required
-                  value={isSpinsMode ? slotSpins : slotBonuses}
-                  onChange={(event) =>
-                    isSpinsMode
-                      ? setSlotSpins(event.target.value)
-                      : handleBonusesChange(event)
-                  }
+                  value={slotSpins}
+                  onChange={(event) => setSlotSpins(event.target.value)}
                   className={inputClass}
-                  placeholder={isSpinsMode ? "Например, 100" : "Например, 3"}
+                  placeholder="Например, 100"
                 />
                 <div className={chipGroupClass}>
                   <p className={`${helperTextClass} mb-2 px-1`}>
                     Быстрый выбор
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {(isSpinsMode ? quickSpinOptions : quickBuyOptions).map(
-                      (preset) => (
+                    {quickSpinOptions.map((spinPreset) => (
                       <button
-                        key={preset}
+                        key={spinPreset}
                         type="button"
-                        onClick={() =>
-                          isSpinsMode ? setSlotSpins(preset) : setBonusCount(preset)
-                        }
+                        onClick={() => setSlotSpins(spinPreset)}
                         className={`${chipClass} ${
-                          (isSpinsMode ? slotSpins : slotBonuses) === preset
+                          slotSpins === spinPreset
                             ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
                             : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
                         }`}
                       >
-                        {preset}
+                        {spinPreset}
                       </button>
                     ))}
                   </div>
@@ -287,42 +239,40 @@ export default function SlotEntryForm({
             </div>
 
             <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
-              {isSpinsMode && (
-                <div className="rounded-2xl border border-slate-800/80 bg-slate-950/30 p-3">
-                  <label className={fieldLabelClass}>
-                    Количество бонусных игр
-                  </label>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    value={slotBonuses}
-                    onChange={handleBonusesChange}
-                    className={inputClass}
-                    placeholder="Например, 3"
-                  />
-                  <div className={chipGroupClass}>
-                    <p className={`${helperTextClass} mb-2 px-1`}>
-                      Частые значения
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {quickBonusOptions.map((bonusPreset) => (
-                        <button
-                          key={bonusPreset}
-                          type="button"
-                          onClick={() => setBonusCount(bonusPreset)}
-                          className={`${chipClass} ${
-                            slotBonuses === String(bonusPreset)
-                              ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
-                              : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
-                          }`}
-                        >
-                          {bonusPreset}
-                        </button>
-                      ))}
-                    </div>
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-950/30 p-3">
+                <label className={fieldLabelClass}>
+                  Количество бонусных игр
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  value={slotBonuses}
+                  onChange={handleBonusesChange}
+                  className={inputClass}
+                  placeholder="Например, 3"
+                />
+                <div className={chipGroupClass}>
+                  <p className={`${helperTextClass} mb-2 px-1`}>
+                    Частые значения
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {quickBonusOptions.map((bonusPreset) => (
+                      <button
+                        key={bonusPreset}
+                        type="button"
+                        onClick={() => setBonusCount(bonusPreset)}
+                        className={`${chipClass} ${
+                          slotBonuses === String(bonusPreset)
+                            ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40"
+                            : "bg-slate-800 text-slate-400 border border-slate-700 hover:text-slate-200"
+                        }`}
+                      >
+                        {bonusPreset}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              )}
+              </div>
 
               {slotBonusWins.length > 0 && (
                 <div className="rounded-2xl border border-indigo-900/40 bg-indigo-950/10 p-3">
@@ -406,9 +356,8 @@ export default function SlotEntryForm({
 
             <div className="sticky bottom-20 z-10 -mx-1 mt-2 rounded-2xl border border-slate-800 bg-slate-950/92 p-3 shadow-2xl shadow-slate-950/40 backdrop-blur-md">
               <p className="mb-2 text-center text-[11px] text-slate-500">
-                {isSpinsMode
-                  ? "Основные поля обязательны: слот, ставка, спины и итоговый баланс."
-                  : "Основные поля обязательны: слот, ставка, количество бонус-баев и итоговый баланс."}
+                Основные поля обязательны: слот, ставка, спины и итоговый
+                баланс.
               </p>
               <button
                 type="submit"
