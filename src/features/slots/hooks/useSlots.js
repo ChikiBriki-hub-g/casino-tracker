@@ -22,6 +22,7 @@ const useSlots = ({
   ]);
   const [activeGroupId, setActiveGroupId] = useState(slotGroups[0].id);
   const [slotName, setSlotName] = useState("");
+  const [slotMode, setSlotMode] = useState("spins");
   const [slotBet, setSlotBet] = useState("");
   const [slotSpins, setSlotSpins] = useState("");
   const [slotBonuses, setSlotBonuses] = useState("");
@@ -232,6 +233,7 @@ const useSlots = ({
     const { setEdit = false, forceGroupId } = options;
     if (forceGroupId) setActiveGroupId(forceGroupId);
     setSlotName(session.name || "");
+    setSlotMode(session.mode === "bonus_buy" ? "bonus_buy" : "spins");
     setSlotBet(session.bet || "");
     setSlotSpins(session.spins || "");
     setSlotBonuses(session.bonuses || "");
@@ -377,13 +379,23 @@ const useSlots = ({
 
   const handleAddSlotSession = (event) => {
     event.preventDefault();
-    if (!slotName || !slotBet || !slotSpins || !slotBalance) return;
+    const normalizedMode = slotMode === "bonus_buy" ? "bonus_buy" : "spins";
+    const hasRequiredModeField =
+      normalizedMode === "spins"
+        ? Boolean(slotSpins.trim())
+        : Number(slotBonuses) > 0;
+
+    if (!slotName || !slotBet || !slotBalance || !hasRequiredModeField) return;
 
     const baseSession = {
       name: slotName.trim(),
       bet: slotBet.trim(),
-      spins: slotSpins.trim(),
-      bonuses: slotBonuses.trim() || "0",
+      mode: normalizedMode,
+      spins: normalizedMode === "spins" ? slotSpins.trim() : "0",
+      bonuses:
+        normalizedMode === "bonus_buy"
+          ? slotBonuses.trim()
+          : slotBonuses.trim() || "0",
       bonusWins: slotBonusWins.map((win) => win.trim()).filter(Boolean),
       balance: slotBalance.trim(),
       provider: slotProvider.trim(),
@@ -433,6 +445,9 @@ const useSlots = ({
   const handleRepeatLastSlot = () => {
     if (!lastSessionInActiveGroup) return;
     setSlotName(lastSessionInActiveGroup.name || "");
+    setSlotMode(
+      lastSessionInActiveGroup.mode === "bonus_buy" ? "bonus_buy" : "spins",
+    );
     setSlotProvider(lastSessionInActiveGroup.provider || "");
     setEditingSession(null);
   };
@@ -542,10 +557,16 @@ const useSlots = ({
 
   const formatSlotText = (session) => {
     const sessionCurrency = session.sessionCurrency || currency;
-    let text = `${session.name} - ставка ${session.bet}${sessionCurrency} - ${session.spins} спинов`;
+    const sessionMode = session.mode === "bonus_buy" ? "bonus_buy" : "spins";
+    let text = `${session.name} - ставка ${session.bet}${sessionCurrency}`;
     const bonusesCount = Number(session.bonuses);
 
-    text += ` - ${bonusesCount} ${getBonusWord(bonusesCount)}`;
+    if (sessionMode === "bonus_buy") {
+      text += ` - бонус-бай: ${bonusesCount}`;
+    } else {
+      text += ` - ${session.spins} спинов`;
+      text += ` - ${bonusesCount} ${getBonusWord(bonusesCount)}`;
+    }
 
     if (bonusesCount > 0 && session.bonusWins && session.bonusWins.length > 0) {
       const winsWithX = session.bonusWins.map((win) => {
@@ -629,6 +650,7 @@ const useSlots = ({
     setSlotSearchQuery("");
     setNewSlotProvider("");
     closeSlotSearch();
+    setSlotMode("spins");
     resetSlotForm();
     setKeepQuickContext(true);
     setCopiedGroupId(null);
@@ -641,6 +663,7 @@ const useSlots = ({
     activeGroupId,
     setActiveGroupId,
     slotName,
+    slotMode,
     slotBet,
     slotSpins,
     slotBonuses,
@@ -672,6 +695,7 @@ const useSlots = ({
     hasExactSlotMatch,
     setIsSlotSearchOpen,
     setSlotSearchQuery: handleSlotSearchQueryChange,
+    setSlotMode,
     setSlotBet: (value) => setSlotBet(formatInputWithCommas(value)),
     setSlotSpins,
     setSlotBalance: (value) => setSlotBalance(formatInputWithCommas(value)),

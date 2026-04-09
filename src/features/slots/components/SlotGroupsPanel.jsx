@@ -49,6 +49,13 @@ export default function SlotGroupsPanel({
               (sum, item) => sum + (Number(item.bonuses) || 0),
               0,
             );
+            const totalBonusBuys = groupItems.reduce(
+              (sum, item) =>
+                item.mode === "bonus_buy"
+                  ? sum + (Number(item.bonuses) || 0)
+                  : sum,
+              0,
+            );
             const latestBalance = groupItems[0]?.balance;
 
             return (
@@ -96,6 +103,9 @@ export default function SlotGroupsPanel({
                       </span>
                       <span className="whitespace-nowrap rounded-full border border-slate-700 bg-slate-900/60 px-2 py-1 text-slate-300">
                         {totalBonuses} бонусов
+                      </span>
+                      <span className="whitespace-nowrap rounded-full border border-slate-700 bg-slate-900/60 px-2 py-1 text-slate-300">
+                        {totalBonusBuys} бонус-баев
                       </span>
                       {latestBalance && (
                         <span className="whitespace-nowrap rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2 py-1 text-indigo-200">
@@ -168,6 +178,8 @@ export default function SlotGroupsPanel({
                       {group.items.map((session, index) => {
                         const currentCurrency =
                           session.sessionCurrency || currency;
+                        const sessionMode =
+                          session.mode === "bonus_buy" ? "bonus_buy" : "spins";
                         const prevSession = group.items[index + 1];
                         const currentBalance = parseAmount(session.balance);
                         const previousBalance = prevSession
@@ -263,18 +275,26 @@ export default function SlotGroupsPanel({
                               </div>
                               <div className="surface-card-muted rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
                                 <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
-                                  Спины
+                                  {sessionMode === "bonus_buy"
+                                    ? "Бонус-баи"
+                                    : "Спины"}
                                 </span>
                                 <span className="font-semibold text-slate-300 text-xs">
-                                  {session.spins}
+                                  {sessionMode === "bonus_buy"
+                                    ? session.bonuses
+                                    : session.spins}
                                 </span>
                               </div>
                               <div className="surface-card-muted rounded-lg py-1.5 flex flex-col items-center justify-center border border-slate-800/50">
                                 <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">
-                                  Бонуски
+                                  {sessionMode === "bonus_buy"
+                                    ? "Режим"
+                                    : "Бонуски"}
                                 </span>
                                 <span className="font-semibold text-slate-300 text-xs">
-                                  {session.bonuses}
+                                  {sessionMode === "bonus_buy"
+                                    ? "Бонус-бай"
+                                    : session.bonuses}
                                 </span>
                               </div>
                             </div>

@@ -19,6 +19,8 @@ export default function SlotsTab(props) {
     handleDuplicateLastSession,
     setIsSlotSearchOpen,
     slotName,
+    slotMode,
+    setSlotMode,
     slotProvider,
     slotBet,
     setSlotBet,
@@ -67,6 +69,8 @@ export default function SlotsTab(props) {
         handleDuplicateLastSession={handleDuplicateLastSession}
         setIsSlotSearchOpen={setIsSlotSearchOpen}
         slotName={slotName}
+        slotMode={slotMode}
+        setSlotMode={setSlotMode}
         slotProvider={slotProvider}
         slotBet={slotBet}
         setSlotBet={setSlotBet}

@@ -518,6 +518,13 @@ const useAnalytics = ({
   const getSessionBadges = (session) => {
     const badges = [];
     const slotKey = (session.name || "").toLowerCase();
+    const sessionMode = session.mode === "bonus_buy" ? "bonus_buy" : "spins";
+
+    badges.push({
+      id: "mode",
+      label: sessionMode === "bonus_buy" ? "bonus buy" : "spins",
+      tone: "neutral",
+    });
 
     if (
       (session.bestX || 0) > 0 &&
@@ -628,6 +635,7 @@ const useAnalytics = ({
         "date",
         "group",
         "slot",
+        "mode",
         "provider",
         "bet",
         "spins",
@@ -643,6 +651,7 @@ const useAnalytics = ({
         session.date || "",
         session.groupName || "",
         session.name || "",
+        session.mode === "bonus_buy" ? "bonus_buy" : "spins",
         session.provider || "",
         session.bet || "",
         session.spins || "",

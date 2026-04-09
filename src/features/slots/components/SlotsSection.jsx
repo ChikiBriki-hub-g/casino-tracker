@@ -26,6 +26,8 @@ export default function SlotsSection({
         handleDuplicateLastSession={slots.handleDuplicateLastSession}
         setIsSlotSearchOpen={slots.setIsSlotSearchOpen}
         slotName={slots.slotName}
+        slotMode={slots.slotMode}
+        setSlotMode={slots.setSlotMode}
         slotProvider={slots.slotProvider}
         slotBet={slots.slotBet}
         setSlotBet={slots.setSlotBet}

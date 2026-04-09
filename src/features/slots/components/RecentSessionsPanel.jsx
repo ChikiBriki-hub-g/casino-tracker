@@ -48,6 +48,9 @@ export default function RecentSessionsPanel({
                   <div className="whitespace-nowrap text-right text-xs text-slate-400">
                     ставка {session.bet}
                     {session.sessionCurrency || currency}
+                    <div className="mt-1 text-[10px] text-slate-500">
+                      {session.mode === "bonus_buy" ? "бонус-бай" : "спины"}
+                    </div>
                   </div>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
